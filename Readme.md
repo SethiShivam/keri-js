@@ -24,5 +24,3 @@ Save file and than run Command
 ~~~~
 node  test_coring.js
 ~~~~
-
-cle
