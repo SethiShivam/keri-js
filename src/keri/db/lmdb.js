@@ -32,7 +32,6 @@ async function setupDbEnv(baseDirPath = '', port = 8080) {
         }
     } else {
         if (fs.accessSync(baseDirPath, fs.constants.F_OK | fs.constants.W_OK | fs.constants.R_OK)) {
-            console.log("var path exists ")
             baseDirPath = ALT_DATABASE_DIR_PATH + port
             baseDirPath = path.resolve(resolveHome(baseDirPath))
             if (!fs.pathExistsSync(baseDirPath)) { fs.mkdirsSync(baseDirPath, 0o777) }
@@ -53,8 +52,9 @@ async function setupDbEnv(baseDirPath = '', port = 8080) {
 
 function resolveHome(filepath) {
     if (filepath[0] === '~') {
-        console.log(path.join(process.env.HOME, filepath.slice(1)))
         return path.join(process.env.HOME, filepath.slice(1));
     }
     return filepath;
 }
+
+setupDbEnv()
