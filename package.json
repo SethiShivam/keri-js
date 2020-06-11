@@ -10,7 +10,11 @@
   "license": "ISC",
   "dependencies": {
     "blake3": "^2.1.4",
+    "fs-extra": "^9.0.0",
+    "js-base64": "^2.5.2",
     "libsodium-wrappers-sumo": "^0.7.6",
+    "lmdb-store": "^0.3.21",
+    "tmp": "^0.2.1",
     "utf8": "^3.0.0"
   }
 }

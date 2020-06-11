@@ -30,7 +30,7 @@ async function testslibsodium() {
   Key streching  from 16 bytes using libsodium.crypto_pwhash()
   */
   assert.equal(16, libsodium.crypto_pwhash_SALTBYTES)
-  salt = libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES)
+  let salt = libsodium.randombytes_buf(libsodium.crypto_pwhash_SALTBYTES)
   assert.equal(16, salt.length)
 
   /*
@@ -64,9 +64,7 @@ async function testslibsodium() {
   msg = Buffer.from(msg, 'binary')
   let msgb = Buffer.from(msg)
   assert.deepStrictEqual(msg, msgb)
-  let result = null
-  // let sig = libsodium.crypto_sign_detached(msgb,sigseed + verkey)
-  //assert.equal(64,sig)
+
 
 
 
