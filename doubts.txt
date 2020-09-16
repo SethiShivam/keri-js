@@ -1,0 +1,26 @@
+what is ked ?
+ked is inception key event dict
+
+What is the concept of seal ?
+
+Plan for events? 
+
+Within the KERI protocol cryptographic digests and signatures are created of specified subsets of the data elements
+ extracted from complete KERI key events.
+  Consequently these extracted data sets also need to be serialized.
+   Importantly, however, the extracted data set serialization do not need to be propagated over the network.
+    This means that the serializations do not need to preserve the semantic structure of the data.
+     This allows extracted data serialization encoding to simplified.
+      These digests of extracted data, however, need to be reproducible by any other entity. 
+This means that the ordering of the data elements in the serialization must be exactly specified.
+
+
+the extracted data set serialization do not need to be propagated over the network 
+
+i am not fully able to understand this .
+as per my understanding we are extractng this subset of data from the main event logs.
+and we are extracting it 
+
+why are we serializing this data  ?
+
+isn't  this data is already serialized  

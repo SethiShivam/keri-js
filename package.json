@@ -10,10 +10,16 @@
   "license": "ISC",
   "dependencies": {
     "blake3": "^2.1.4",
+    "blob": "^0.1.0",
+    "bytearray-node": "^3.2.8",
+    "cbor": "^5.1.0",
+    "filereader": "^0.10.3",
     "fs-extra": "^9.0.0",
     "js-base64": "^2.5.2",
     "libsodium-wrappers-sumo": "^0.7.6",
     "lmdb-store": "^0.3.21",
+    "msgpack5": "^4.2.1",
+    "nodemon": "^2.0.4",
     "tmp": "^0.2.1",
     "utf8": "^3.0.0"
   }
