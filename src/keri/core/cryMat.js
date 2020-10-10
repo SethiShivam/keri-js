@@ -1,7 +1,7 @@
 'use strict'
 const codeAndLength = require('./derivationCode&Length')
-var Base64 = require('js-base64').Base64;
-
+var Base64 = require('urlsafe-base64');
+const intToB64 = require('./../help/stringToBinary')
 /**
  * @description CRYPTOGRAPHC MATERIAL BASE CLASS
  * @subclasses  provides derivation codes and key event element context specific
@@ -32,54 +32,61 @@ class Crymat {
         Else when qb64 or qb2 provided extract and assign .raw and .code
         */
 
-
-        this.raw = raw
-        this.qb64 = qb64
-        this.qb2 = qb2
-        this.code = code
-      //  console.log("raw length is ----->", raw.length)
-     //   console.log("Code ----->", this.code)
-        let rawString = raw.toString()
+        console.log("raw length is ----->", raw)
+        console.log("Code ----->", code)
         ///typeof(this.raw)== typeof(Buffer.from('', 'binary') ||typeof(this.raw)== typeof(Buffer.from('', 'binary'))))
-        if (this.raw) {
-            if (!(Buffer.isBuffer(this.raw) || Array.isArray(this.raw))) {
-                throw `Not a bytes or bytearray, raw= ${this.raw}.`
+        if (raw) {
+            console.log("Inside this.raw condition")
+            if (!(Buffer.isBuffer(raw) || Array.isArray(raw))) {
+                throw `Not a bytes or bytearray, raw= ${raw}.`
             }
-         //   console.log("Buffer.byteLength(raw, 'utf-8') ---------->", Buffer.byteLength(raw, 'utf-8'))
-            let pad = this._pad(this.raw)
-               // console.log("PAD Value is ------->",pad)
-            
+            console.log("Calculating pad value ----------->", raw)
+            let pad = this._pad(raw)
+            console.log("PAD Value is ------->", pad)
+
             // this.raw = Buffer.byteLength(raw, 'utf-8')
-            
-            if (!((pad == 1 && Object.values(JSON.stringify(codeAndLength.CryOneSizes)).includes(this.code))
-                || (pad == 2 && Object.values(codeAndLength.CryTwoSizes).includes(this.code)
-                    || (pad == 0 && Object.values(codeAndLength.CryFourSizes).includes(this.code))))) {
-                throw `Wrong code= ${this.code} for raw= ${this.raw} .`
+
+            if (!((pad == 1 && Object.values(JSON.stringify(codeAndLength.CryOneSizes)).includes(code))
+                || (pad == 2 && Object.values(JSON.stringify(codeAndLength.CryTwoSizes).includes(code))
+                    || (pad == 0 && Object.values(JSON.stringify(codeAndLength.CryFourSizes).includes(code)))))) {
+                throw `Wrong code= ${code} for raw= ${raw} .`
             }
-            if (Object.values(codeAndLength.CryCntCodex).includes(this.code)
+            if (Object.values(codeAndLength.CryCntCodex).includes(code)
                 && (index < 0) || (index > codeAndLength.CRYCNTMAX)) {
                 throw `Invalid index=${index} for code=${code}.`
             }
-                 //   console.log('codeAndLength.cryAllRawSizes[this.code]-------->',codeAndLength.cryAllRawSizes[this.code])
-                 
-            raw = raw.slice(0, codeAndLength.cryAllRawSizes[this.code])
-         //   console.log("raw value after slicing is --->",raw.toString())
-            if (raw.length != codeAndLength.cryAllRawSizes[this.code]) {
-                throw `Unexpected raw size= ${raw.length} for code= ${this.code}"
-                " not size= ${codeAndLength.cryAllRawSizes[this.code]}.`
+            //   console.log('codeAndLength.cryAllRawSizes[this.code]-------->',codeAndLength.cryAllRawSizes[this.code])
+
+            raw = raw.slice(0, codeAndLength.cryAllRawSizes[code])
+            console.log("raw value after slicing is --->", raw.length)
+            if (raw.length != codeAndLength.cryAllRawSizes[code]) {
+                throw `Unexpected raw size= ${raw.length} for code= ${code}"
+                " not size= ${codeAndLength.cryAllRawSizes[code]}.`
             }
+            this._code = code
+            console.log("updated code is -------------->", code)
+            this._index = index
+            this._raw = Buffer.from(raw, 'binary')  // crypto ops require bytes not bytearray
 
         }
-        else if (!(qb64 = null)) {
+
+
+        else if (qb64 != null) {
             qb64 = qb64.toString('utf-8')
+            console.log("qb64---------------->", qb64)
             this._exfil(qb64)
+        }
+        else if (qb2 != null) {
+
+            this._exfil(Base64.encode(qb2))
+        } else {
+            throw 'Improper initialization need raw or b64 or b2.'
         }
     }
 
+
     _pad(raw) {
-       // console.log("raw length is ------>", Buffer.byteLength(raw, 'binary'))
-        let reminder =  Buffer.byteLength(raw, 'binary') % 3
-      //  console.log("reminder", reminder)
+        let reminder = Buffer.byteLength(raw, 'binary') % 3
         if (reminder == 0)
             return 0
         else {
@@ -88,92 +95,125 @@ class Crymat {
     }
 
     _exfil(qb64) {
-
+        let BASE64_PAD = '='
+        console.log("qb64 length is --------------> ", qb64.length)
         let cs = 1   //code size
         let code_slice = qb64.slice(0, cs)
+        console.log("slicing code is ------------->", code_slice)
         let index = 0
-
         if (Object.values(codeAndLength.oneCharCode).includes(code_slice)) {
+            console.log("codeAndLength.CryOneSizes[code_slice] ---------------->", codeAndLength.CryOneSizes[code_slice])
             qb64 = qb64.slice(0, codeAndLength.CryOneSizes[code_slice])
+            console.log('QB value and length is ---------------->', qb64, '\n', qb64.length)
         }
 
         else if (code_slice == codeAndLength.crySelectCodex.two) {
             cs += 1
             code_slice = qb64.slice(0, cs)
+            console.log("code slice is ---------------->", code_slice)
             if (!Object.values(codeAndLength.twoCharCode).includes(code_slice))
                 throw `Invalid derivation code = ${code_slice} in ${qb64}.`
 
             qb64 = qb64.slice(0, codeAndLength.CryTwoSizes[code_slice])
+            console.log("qb64 Details are :-------------->", qb64.length)
         }
 
         else if (code_slice == codeAndLength.crySelectCodex.four) {
             cs += 3
             code_slice = qb64.slice(0, cs)
+            console.log("Code is present in crySelectCodex.four \n", crySelectCodex.four)
             if (!Object.values(codeAndLength.fourCharCode).includes(code_slice))
                 throw `Invalid derivation code = ${code_slice} in ${qb64}.`
 
             qb64 = qb64.slice(0, codeAndLength.CryFourSizes[code_slice])
         }
         else if (code_slice == codeAndLength.crySelectCodex.dash) {
+            console.log("Code is present in crySelectCodex.dash \n", codeAndLength.crySelectCodex.dash)
             cs += 1
             code_slice = qb64.slice(0, cs)
+            console.log("Code slice is ----------------->", code_slice)
             if (!Object.values(codeAndLength.CryCntCodex).includes(code_slice))
                 throw `Invalid derivation code = ${code_slice} in ${qb64}.`
 
             qb64 = qb64.slice(0, codeAndLength.CryCntSizes[code_slice])
             cs += 2  // increase code size
-            index = B64ToInt(qb64.slice(cs-2 , cs))  // last two characters for index
-            print('base64 to int conversion',index)
+            index = intToB64.b64ToInt(qb64.slice(cs - 2, cs))
+          //  index = Object.keys(codeAndLength.b64ChrByIdx).find(key => codeAndLength.b64ChrByIdx[key] === qb64.slice(cs - 2, cs)) // last two characters for index
+            console.log('Value of index is ------>', qb64.slice(cs - 2, cs))
         }
 
         else {
             throw `Improperly coded material = ${qb64}`
         }
 
-        if (qb64.length != code.cryAllSizes[code_slice])
-            throw `Unexpected qb64 size= ${qb64.length} for code= ${code_slice} not size= ${code.cryAllSizes[code_slice]}.`
+        if (qb64.length != codeAndLength.cryAllSizes[code_slice])
+            throw `Unexpected qb64 size= ${qb64.length} for code= ${code_slice} not size= ${codeAndLength.cryAllSizes[code_slice]}.`
 
-        pad = cs % 4
-        base = qb64.slice(pre, qb64.length) + pad * BASE64_PAD
-        raw = Base64.decode(Buffer.from(base, "utf-8"))
-
-        if (raw.length != Math.floor((qb64.length - pre) / 3)) {
+        let pad = cs % 4
+        console.log("Pad value is ------------>", pad)
+        console.log("qb64[cs:] ------------>", qb64.slice(cs, qb64.length))
+        let base = qb64.slice(cs, qb64.length) + BASE64_PAD.repeat(pad)
+        console.log("Base is ------>", base)
+        let raw = Base64.decode(base.toString('utf-8'))    //Buffer.from(base, "utf-8")
+        console.log("RAW value and length are :", (Buffer.from(raw, 'binary')).length, '\n', Math.floor(((qb64.length - cs) * 3) / 4))
+        if (raw.length != Math.floor(((qb64.length - cs) * 3) / 4)) {
             throw `Improperly qualified material = ${qb64}`
         }
         this._code = code_slice
-        this._raw = raw
-        this._index = index
+        this._raw = Buffer.from(raw, 'binary')
+        this._index = parseInt(index)
+        this._qb64 = qb64
+
 
 
     }
 
     _infil() {
+        let l = null
+        let full = null
+        console.log("this.code ------------->", this._code)
+        if (Object.values(codeAndLength.CryCntCodex).includes(this._code)) {
+            console.log("Inside if condition")
+          l = codeAndLength.CryCntIdxSizes[this._code]
+        full = `${this._code}${intToB64.intToB64(this._index, l = l)}`
+        } else {
 
-      let  encodedVal = Base64.encodeURI(this._raw)
-        console.log("Encoded value ---------------->",encodedVal)
-        let decodedVal = Base64.decode(encodedVal)
-        console.log("decodedVal ---------------->",encodedVal)
+            full = this._code
 
-        if (Object.values(codeAndLength.CryCntCodex).includes(this.code)){
-            let l = codeAndLength.CryCntIdxSizes[this.code]
-            let full = `${this.code}${}`
         }
-
-      let  pad = this.pad
+            console.log("value of l and full are : ", l ,'\n', full)
+        let pad = this.pad()
         // Validate pad for code length
-        if ((this.code).length % 4 != pad) {
+        console.log("PAD ==============>", full)
+        if ((full).length % 4 != pad) {
             // Here pad is not the reminder of code length
-            throw `Invalid code = ${this.code} for converted raw pad = ${this.pad}.`
+            throw `Invalid code = ${this._code} for converted raw pad = ${this._pad}.`
         }
-        return decodedVal.slice(0, -pad)
+        console.log("FULL -------->",full + Base64.encode(this._raw))
+        // console.log("Base64.encode(this.raw) -------->",Base64.encode(this.raw), '',(Base64.encode(this.raw)).length)
+        //  console.log("pad ---------------_>",(Base64.encode(this.raw)).slice(0, -pad))
+
+        return (full + Base64.encode(this._raw))
     }
 
-     qb64() {
+    qb64() {
         // qb64 = Qualified Base64 version,this will return qualified base64 version assuming
         // self.raw and self.code are correctly populated
 
         return this._infil()
     }
+
+    /**
+     * """
+        Property qb64b:
+        Returns Fully Qualified Base64 Version encoded as bytes
+        Assumes self.raw and self.code are correctly populated
+        """
+     */
+    qb64b() {
+        return encodeURIComponent(this.qb64())
+    }
+
 
     qb2() {
         /* Property qb2:
@@ -183,19 +223,27 @@ class Crymat {
          # rewrite to do direct binary infiltration by
          # decode self.code as bits and prepend to self.raw
          */
-        return Buffer.from(this._infil(), 'utf-8')
+        //  Buffer.from(this._infil(), 'utf-8')
+
+        return Base64.decode(encodeURIComponent(this._infil())).toString()  
     }
 
     raw() {
-        return this.raw
+        return this._raw
     }
 
     pad() {
-        return this._pad(this.raw)
+        return this._pad(this._raw)
     }
 
     code() {
         return this._code
+
+    }
+
+    index() {
+        console.log("thiss._index ===========>",this._index)
+        return this._index
 
     }
 }

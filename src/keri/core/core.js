@@ -2,9 +2,9 @@ const util = require('./utls')
 
 
 const VERRAWSIZE = 6
-const Versionage = { major: 1, minor: 0 }
-const Serialage = { json: "", mgpk: "", cbor: "" }
-const Vstrings = Serialage
+var Versionage = { major: 1, minor: 0 }
+var Serialage = { json: "", mgpk: "", cbor: "" }
+var Vstrings = Serialage
 let Serials = { json: "JSON", mgpk: "MGPK", cbor: "CBOR" }
 let mimes = {
   json: "application/keri+json",
@@ -12,9 +12,9 @@ let mimes = {
   cbor: "application/keri+cbor",
 }
 // let yourNumber = 899
-// let hexString =  yourNumber.toString(16);
-// let two = '29'.toString(16);
-// let three = '39'.toString(16)
+let hexString =  yourNumber.toString(16);
+let two = '29'.toString(16);
+let three = '39'.toString(16)
 let VERFMT = `KERI${hexString} ${two} ${three}_`   /// version format string
 
 //nameString.toString("utf8");
@@ -71,3 +71,5 @@ function deversify(versionString) {
   }
   return `Invalid version string = ${versionString}`
 }
+
+module.exports = {deversify,versify,Versionage,Serialage,Serials}

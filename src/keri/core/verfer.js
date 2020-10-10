@@ -11,12 +11,13 @@ class Verfer extends Crymat {
     constructor(...kwg) {
 
         super(...kwg)
-        if (Object.values(derivation_code.oneCharCode.Ed25519N).includes(this.code) ||
-            Object.values(derivation_code.oneCharCode.Ed25519).includes(this.code)) {
+        if (Object.values(derivation_code.oneCharCode.Ed25519N).includes(this._code) ||
+            Object.values(derivation_code.oneCharCode.Ed25519).includes(this._code)) {
 
             this._verify = this._ed25519
+            
         } else {
-            throw `Unsupported code = ${this.code} for verifier.`
+            throw `Unsupported code = ${this._code} for verifier.`
         }
 
     }
@@ -29,7 +30,7 @@ class Verfer extends Crymat {
      */
     verify(sig, ser) {
 
-        return this._verify(sig = sig, ser = ser, key = this.raw)
+        return this._verify(sig = sig, ser = ser, key = this._raw)
     }
 
     /**
