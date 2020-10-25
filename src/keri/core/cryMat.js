@@ -31,11 +31,11 @@ class Crymat {
             and assign .raw
         Else when qb64 or qb2 provided extract and assign .raw and .code
         */
-
+       console.log("RAW AND CODE ARE :",raw,qb64,qb2)
         console.log("raw length is ----->", raw)
         console.log("Code ----->", code)
         ///typeof(this.raw)== typeof(Buffer.from('', 'binary') ||typeof(this.raw)== typeof(Buffer.from('', 'binary'))))
-        if (raw) {
+        if (raw) {  
             console.log("Inside this.raw condition")
             if (!(Buffer.isBuffer(raw) || Array.isArray(raw))) {
                 throw `Not a bytes or bytearray, raw= ${raw}.`
@@ -45,7 +45,7 @@ class Crymat {
             console.log("PAD Value is ------->", pad)
 
             // this.raw = Buffer.byteLength(raw, 'utf-8')
-
+                
             if (!((pad == 1 && Object.values(JSON.stringify(codeAndLength.CryOneSizes)).includes(code))
                 || (pad == 2 && Object.values(JSON.stringify(codeAndLength.CryTwoSizes).includes(code))
                     || (pad == 0 && Object.values(JSON.stringify(codeAndLength.CryFourSizes).includes(code)))))) {
@@ -56,7 +56,7 @@ class Crymat {
                 throw `Invalid index=${index} for code=${code}.`
             }
             //   console.log('codeAndLength.cryAllRawSizes[this.code]-------->',codeAndLength.cryAllRawSizes[this.code])
-
+                console.log("RAW VALUE before slicing is -------->",Buffer.byteLength(raw))
             raw = raw.slice(0, codeAndLength.cryAllRawSizes[code])
             console.log("raw value after slicing is --->", raw.length)
             if (raw.length != codeAndLength.cryAllRawSizes[code]) {
@@ -64,9 +64,9 @@ class Crymat {
                 " not size= ${codeAndLength.cryAllRawSizes[code]}.`
             }
             this._code = code
-            console.log("updated code is -------------->", code)
+            console.log("updated code is -------------->", raw)
             this._index = index
-            this._raw = Buffer.from(raw, 'binary')  // crypto ops require bytes not bytearray
+            this._raw = raw  // crypto ops require bytes not bytearray
 
         }
 
@@ -102,7 +102,7 @@ class Crymat {
         console.log("slicing code is ------------->", code_slice)
         let index = 0
         if (Object.values(codeAndLength.oneCharCode).includes(code_slice)) {
-            console.log("codeAndLength.CryOneSizes[code_slice] ---------------->", codeAndLength.CryOneSizes[code_slice])
+            console.log("codeAndLength.CryOneSizes[code_slice] ---------------->", code_slice,codeAndLength.CryOneSizes[code_slice])
             qb64 = qb64.slice(0, codeAndLength.CryOneSizes[code_slice])
             console.log('QB value and length is ---------------->', qb64, '\n', qb64.length)
         }
@@ -155,15 +155,16 @@ class Crymat {
         let base = qb64.slice(cs, qb64.length) + BASE64_PAD.repeat(pad)
         console.log("Base is ------>", base)
         let raw = Base64.decode(base.toString('utf-8'))    //Buffer.from(base, "utf-8")
-        console.log("RAW value and length are :", (Buffer.from(raw, 'binary')).length, '\n', Math.floor(((qb64.length - cs) * 3) / 4))
+        console.log("RAW value and length are :", (Buffer.from(raw, 'binary')), '\n', Math.floor(((qb64.length - cs) * 3) / 4))
         if (raw.length != Math.floor(((qb64.length - cs) * 3) / 4)) {
             throw `Improperly qualified material = ${qb64}`
         }
+        console.log("code_slice =============>",code_slice)
         this._code = code_slice
         this._raw = Buffer.from(raw, 'binary')
         this._index = parseInt(index)
         this._qb64 = qb64
-
+        console.log("CODE,INDEX,RAW are :",this._code,this._index,this._raw)
 
 
     }
@@ -181,7 +182,7 @@ class Crymat {
             full = this._code
 
         }
-            console.log("value of l and full are : ", l ,'\n', full)
+            console.log("value of l and full are : ",'\n', full)
         let pad = this.pad()
         // Validate pad for code length
         console.log("PAD ==============>", full)
@@ -237,6 +238,7 @@ class Crymat {
     }
 
     code() {
+        console.log("this._code ===========>",this._code)
         return this._code
 
     }

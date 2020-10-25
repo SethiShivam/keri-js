@@ -12,9 +12,11 @@ const { Diger } = require('../../src/keri/core/diger');
 const { Prefixer } = require('../../src/keri/core/prefixer')
 const {Nexter} = require('../../src/keri/core/nexter')
 const { SigMat } = require('../../src/keri/core/sigmat');
+const {versify,Serials,Versionage,Ilks} = require('../../src/keri/core/core')
 const { Base } = require('msgpack5');
 const { copySync } = require('fs-extra');
 const util= require('util');
+const { serialize } = require('v8');
 
 
 
@@ -428,8 +430,8 @@ async function test_prefixer() {
 
   let verkey = '\xacr\xda\xc83~\x99r\xaf\xeb`\xc0\x8cR\xd7\xd7\xf69\xc8E\x1e\xd2\xf0=`\xf7\xbf\x8a\x18\x8a`q'
   verkey = Buffer.from(verkey, 'binary')
-  let verfer = new Verfer(verkey)
-  assert.deepStrictEqual(verfer.qb64() ,'BrHLayDN-mXKv62DAjFLX1_Y5yEUe0vA9YPe_ihiKYHE') 
+  // let verfer = new Verfer(verkey)
+  // assert.deepStrictEqual(verfer.qb64() ,'BrHLayDN-mXKv62DAjFLX1_Y5yEUe0vA9YPe_ihiKYHE') 
 
 
 
@@ -443,7 +445,7 @@ async function test_prefixer() {
 
   // test creation given raw and code no derivation
 
-   let prefixer =  new Prefixer(verkey)
+  //  let prefixer =  new Prefixer(verkey)
 
 
 
@@ -458,7 +460,7 @@ async function test_prefixer() {
   // ked = {keys:[prefixer.qb64()],nxt:'ABC'}
   // assert.deepEqual(prefixer.verify(ked) , false)
 
-  // //raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null, ...kwa
+  //raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null, ...kwa
   // prefixer = new Prefixer(verkey, derivationCodes.oneCharCode.Ed25519,null,null,null)  //# defaults provide Ed25519N prefixer
   // assert.deepStrictEqual(prefixer.code() , derivationCodes.oneCharCode.Ed25519) 
   // assert.deepStrictEqual((prefixer.raw()).length , derivationCodes.CryOneRawSizes[prefixer.code()]) 
@@ -476,47 +478,64 @@ async function test_prefixer() {
 
 
   //                                  # # Test basic derivation from ked
-  ked = { keys: [verfer.qb64()], nxt: "" }
+  
+  // ked = { keys: [verfer.qb64()], nxt: "" }
 
- // raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null, ...kwa
-  prefixer = new Prefixer(null, derivationCodes.oneCharCode.Ed25519, ked)
-  assert.deepStrictEqual(prefixer.qb64(), verfer.qb64())
-  assert.deepStrictEqual(prefixer.verify(ked), true)
+//  // raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null, ...kwa
+//  let prefixer = new Prefixer(null, derivationCodes.oneCharCode.Ed25519, ked)
+//   assert.deepStrictEqual(prefixer.qb64(), verfer.qb64())
+//   assert.deepStrictEqual(prefixer.verify(ked), true)
 
 
 
-  // # verfer = Verfer(raw=verkey, code=CryOneDex.Ed25519N)
-  // # ked = dict(keys=[verfer.qb64], nxt="")
-  // # prefixer = Prefixer(ked=ked)
-  // # assert prefixer.qb64 == verfer.qb64
+  let verfer = new Verfer(verkey, null, null, derivationCodes.oneCharCode.Ed25519N, 0)
+ let ked = { keys: [verfer.qb64()], nxt: "" }
+//  let prefixer = new Prefixer(null, derivationCodes.oneCharCode.Ed25519N, ked)
+
+//    assert.deepStrictEqual(prefixer.qb64(), verfer.qb64())
+//   assert.deepStrictEqual(prefixer.verify(ked), true)
+
+    // # # Test digest derivation from inception ked
+   ked = { keys: [verfer.qb64()], nxt: "ABCD" }
+let vs = versify(Versionage, Serials.json,0)
+   let sn = 0
+   let ilk = Ilks.icp
+   let sith = 1
+ let prefixer = new Crymat(verkey,null,null ,derivationCodes.oneCharCode.Ed25519)
+    keys = [prefixer.qb64()]
+  let nxt = ""
+  let toad = 0
+   let wits = []
+   let cnfg = []
+  console.log("key is --------->",ked)
+    ked = {
+                vs:vs,         // version string
+                 pre:"",                                       //# qb64 prefix
+                sn:sn.toString(16),             // # hex string no leading zeros lowercase
+                ilk:ilk,
+                sith:sith.toString(16),             //# hex string no leading zeros lowercase
+                keys:keys,                            //# list of qb64
+                nxt:nxt,                              //# hash qual Base64
+                toad:toad.toString(16),             //  # hex string no leading zeros lowercase
+                wits:wits,                            // # list of qb64 may be empty
+                cnfg:cnfg,                           // # list of config ordered mappings may be empty
+   }
+//util.pad(size.toString(16), VERRAWSIZE)
+   console.log("key is --------->",ked)
+   prefixer = new  Prefixer(null,derivationCodes.oneCharCode.Blake3_256,ked)
+
+  //  assert.deepStrictEqual(prefixer.qb64(), 'EFMo3ix8YSCJn5mVK5TvL5A30V-eOXYKfEsqWRWoA6z4')
+  //  assert.deepStrictEqual(prefixer.verify(ked), true)
+     // # assert prefixer.qb64 == 'EFMo3ix8YSCJn5mVK5TvL5A30V-eOXYKfEsqWRWoA6z4'
   // # assert prefixer.verify(ked=ked) == True
-
-  // # ked = dict(keys=[verfer.qb64], nxt="ABCD")
+// ==================> This part left =================>
   // # with pytest.raises(DerivationError):
   // #     prefixer = Prefixer(ked=ked)
+// ====================================================>
 
   // # # Test digest derivation from inception ked
-  // # vs = Versify(version=Version, kind=Serials.json, size=0)
-  // # sn = 0
-  // # ilk = Ilks.icp
-  // # sith = 1
-  // # keys = [Prefixer(raw=verkey, code=CryOneDex.Ed25519).qb64]
-  // # nxt = ""
-  // # toad = 0
-  // # wits = []
-  // # cnfg = []
 
-  // # ked = dict(vs=vs,  # version string
-  // #            pre="",  # qb64 prefix
-  // #            sn="{:x}".format(sn),  # hex string no leading zeros lowercase
-  // #            ilk=ilk,
-  // #            sith="{:x}".format(sith),  # hex string no leading zeros lowercase
-  // #            keys=keys,  # list of qb64
-  // #            nxt=nxt,  # hash qual Base64
-  // #            toad="{:x}".format(toad),  # hex string no leading zeros lowercase
-  // #            wits=wits,  # list of qb64 may be empty
-  // #            cnfg=cnfg,  # list of config ordered mappings may be empty
-  // #            )
+
 
   // # prefixer = Prefixer(ked=ked, code=CryOneDex.Blake3_256)
   // # assert prefixer.qb64 == 'EFMo3ix8YSCJn5mVK5TvL5A30V-eOXYKfEsqWRWoA6z4'
@@ -814,24 +833,18 @@ let sig =  await libsodium.crypto_sign_detached(ser,seed +keypair.privateKey  ) 
 result = verfer.verify(sig, ser)
 assert.deepStrictEqual(result,true)
 }
+
+
+async function test_serder(){
+
+
+  
+}
 // test_verfer()
-//test_prefixer()
+test_prefixer()
 // test_nexter()
 // test_cryMat()
-test_crycounter()
+// test_crycounter()
 // tecrycounter()
 // test_sigmat()
 
-// async function stringToBytes(str)
-// {
-//     let reader = new FileReader();
-//     let done = () => {};
-
-//     reader.onload = event =>
-//     {
-//         done(new Uint8Array(event.target.result), str);
-//     };
-//     reader.readAsArrayBuffer(new Blob([str], { type: "application/octet-stream" }));
-
-//     return { done: callback => { done = callback; } };
-// }

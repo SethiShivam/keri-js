@@ -13,8 +13,8 @@ function pad(n, width = 3, z = 0) {
 function extractValues(ked, labels){
 
 let values = []
-for (label in labels){
-    extractElementValues(element=ked[label], values=values)
+for (let label in labels){
+    extractElementValues(ked[label], values)
 }
 return values
 }
@@ -32,6 +32,7 @@ return values
  */
 
 function extractElementValues(element, values) {
+    
     
 }
 

@@ -6,6 +6,7 @@ const { version } = require('utf8')
 const { Verfer } = require('./verfer')
 const verfer = require('./verfer')
 const { Sigver } = require('./sigver')
+const {Ilks,IcpLabels,DipLabels} = require('./../core/core')
 
 
 
@@ -31,35 +32,46 @@ class Prefixer extends Crymat {
      * @description  // This constructor will assign
      *  ._verify to verify derivation of aid  = .qb64
      */
-    constructor(raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null, ...kwa) {
-    
-        try {
+    constructor(raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null) {
         
+       
+       
+        try {
+            console.log("INSIDE PREFIXER CLASS :")
+            console.log("KED :",ked)
+            console.log("Super: (Code,raw)",code,raw)
              super(raw, null, null, code, 0)
            //  throw 'Improper initialization need raw or b64 or b2.';
             
         } catch (error) {
             if (!(ked || code))
                 throw error  // throw error if no ked found 
-            var _derive = null
-            console.log("INSIDE CATCH ERROR")
-                if (code == derivation_code.oneCharCode.Ed25519N)
-                    _derive = _DeriveBasicEd25519N
-            else if (code == derivation_code.oneCharCode.Ed25519)
-                    _derive = _DeriveBasicEd25519
-            else if (code == derivation_code.oneCharCode.Blake3_256)
-                    _derive = _DeriveDigBlake3_256
-            else if (code == CryTwoDex.Ed25519)
-                    _derive = _DeriveSigEd25519
-            else
-                throw `Unsupported code = ${code} for prefixer.`
-    
-    
-    let  verfer = _derive(ked,seed,secret) // else obtain AID using ked
-    super(verfer.raw, null,null, verfer.code,0)
+
     
         }
-    
+        var _derive = null
+        console.log("INSIDE CATCH ERROR")
+            if (code == derivation_code.oneCharCode.Ed25519N)
+               {  console.log("INSIDE ED25519N")
+                   _derive = _DeriveBasicEd25519N} 
+        else if (code == derivation_code.oneCharCode.Ed25519)
+                {
+                    console.log("INSIDE ED25519")
+                    _derive = _DeriveBasicEd25519 }
+        else if (code == derivation_code.oneCharCode.Blake3_256)
+               {
+                console.log("INSIDE Blake3_256")
+                _derive = _DeriveDigBlake3_256
+               }
+        else if (code == CryTwoDex.Ed25519)
+                _derive = _DeriveSigEd25519
+        else
+            throw `Unsupported code = ${code} for prefixer.`
+
+console.log("KED is ----------------->",ked)
+let  verfer = _derive(ked,seed,secret) // else obtain AID using ked
+
+super(verfer.raw, null,null, verfer.code,0)
          
             if (code == derivation_code.oneCharCode.Ed25519N)
             this._verify = this._VerifyBasicEd25519
@@ -235,8 +247,8 @@ class Prefixer extends Crymat {
             } catch (e) {
                 throw `Error extracting public key = ${e}`
             }
-            if (!(Object.values(derivation_code.oneCharCode.Ed25519).includes(verfer.code))) {
-                throw `Invalid derivation code = ${verfer.code}`
+            if (!(Object.values(derivation_code.oneCharCode.Ed25519).includes(verfer.code()))) {
+                throw `Invalid derivation code = ${verfer.code()}`
             }
 
             sigver = new Sigver(qb64 = pre, verfer = verfer)
@@ -248,7 +260,7 @@ class Prefixer extends Crymat {
             return false
         }
 
-        return true
+
     }
 
 }
@@ -264,20 +276,25 @@ class Prefixer extends Crymat {
      * @param {*} seed 
      * @param {*} secret 
      */
-  function  _DeriveBasicEd25519(ked, seed = null, secret = null) {
-
+  function  _DeriveBasicEd25519(ked, seed = null, secret = null,code=derivation_code.oneCharCode.Ed25519) {
+            let _verfer = null
         try {
             keys = ked["keys"]
             if (keys.length != 1)
                 throw `Basic derivation needs at most 1 key got ${keys.length} keys instead`
-            verfer = new Verfer(qb64 = keys[0])
 
+                console.log("Initializing verfer class--------->")
+                _verfer = new Verfer(null,keys[0])
+                console.log("_VERFER is --------------->",_verfer)
+    
         } catch (e) { throw `Error extracting public key = ${e}` }
 
-        if (!(Object.values(derivation_code.oneCharCode.Ed25519N).includes(verfer.code))) {
-            throw `Invalid derivation code = ${verfer.code}.`
+        if (!(Object.values(derivation_code.oneCharCode.Ed25519).includes(_verfer.code()))) {
+            throw `Invalid derivation code = ${_verfer.code()}.`
         }
-        return { "raw": verfer.raw, "code": verfer.code }
+
+        console.log("###############  RAW DATA ED25519 IS ############### :",_verfer.raw())
+        return { "raw":_verfer.raw(), "code": _verfer.code() }
     }
 
 
@@ -292,26 +309,27 @@ class Prefixer extends Crymat {
     */
 
    function  _DeriveBasicEd25519N(ked, seed = null, secret = null) {
-
+    let  _verfer = null
        try {
            keys = ked["keys"]
            if (keys.length != 1)
                throw `Basic derivation needs at most 1 key got ${keys.length} keys instead`
-         let  verfer = new Verfer(qb64 = keys[0])
-
+               _verfer = new Verfer(null,keys[0])
+          console.log("_VERFER is --------------->",_verfer)
        } catch (e) { throw `Error extracting public key = ${e}` }
 
-       if (!(Object.values(derivation_code.oneCharCode.Ed25519N).includes(verfer.code))) {
-           throw `Invalid derivation code = ${verfer.code}.`
+       if (!(Object.values(derivation_code.oneCharCode.Ed25519N).includes(_verfer.code()))) {
+           throw `Invalid derivation code = ${_verfer.code()}.`
        }
 
        try {
-           if ((Object.values(derivation_code.oneCharCode.Ed25519N).includes(verfer.code)) && ked["nxt"]) {
-               throw `Non-empty nxt = ${ked["nxt"]} for non-transferable code = ${verfer.code}`
+           if ((Object.values(derivation_code.oneCharCode.Ed25519N).includes(_verfer.code())) && ked["nxt"]) {
+               throw `Non-empty nxt = ${ked["nxt"]} for non-transferable code = ${_verfer.code()}`
            }
        } catch (e) { throw `Error checking nxt = ${e}` }
 
-       return { "raw": verfer.raw, "code": verfer.code }
+       console.log("###############  RAW DATA ED25519N IS ############### :",_verfer.raw())
+       return { "raw": _verfer.raw(), "code": _verfer.code() }
    }
 
 
@@ -327,13 +345,13 @@ class Prefixer extends Crymat {
      * @param {*} secret secret or private key 
      */
   function   _DeriveDigBlake3_256(ked, seed = null, secret = null) {
-        let [labels, values, ser, dig] = null
+        let     labels, values, ser, dig = null
         ilk = ked["ilk"]
 
         if (ilk == Ilks.icp)
-            labels = this.IcpLabels
+            labels = IcpLabels
         if (ilk == Ilks.icp)
-            labels = this.DipLabels
+            labels = DipLabels
         else
             throw `Invalid ilk = ${ilk} to derive pre.`
 
@@ -358,7 +376,7 @@ class Prefixer extends Crymat {
      * 
      */
 function  _DeriveSigEd25519(ked, seed = null, secret = null) {
-
+        
         let [labels, values, ser, keys, verfer, signer, sigver] = null
         ilk = ked["ilk"]
 
@@ -386,9 +404,9 @@ function  _DeriveSigEd25519(ked, seed = null, secret = null) {
             throw Error`extracting public key = ${exception}`
         }
 
-
-        if (verfer.code != derivation_code.oneCharCode.Ed25519)
-            throw `Invalid derivation code = ${verfer.code}`
+        console.log("VERFER CODES ARE :")
+        if (verfer.code() != derivation_code.oneCharCode.Ed25519)
+            throw `Invalid derivation code = ${verfer.code()}`
         if (!(seed || secret))
             throw `Missing seed or secret.`
 

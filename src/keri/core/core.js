@@ -6,33 +6,43 @@ var Versionage = { major: 1, minor: 0 }
 var Serialage = { json: "", mgpk: "", cbor: "" }
 var Vstrings = Serialage
 let Serials = { json: "JSON", mgpk: "MGPK", cbor: "CBOR" }
+let Ilks = {icp : "icp",rot : "rot",ixn : "ixn",dip : "dip",drt : "drt",rct :"rct",vrc : "vrc"}
+let IcpLabels = ["sith", "keys", "nxt", "toad", "wits", "cnfg"]
+let DipLabels = ["sith", "keys", "nxt", "toad", "wits", "perm", "seal"]
+
+
 let mimes = {
   json: "application/keri+json",
   mgpk: "application/keri+msgpack",
   cbor: "application/keri+cbor",
 }
 // let yourNumber = 899
-let hexString =  yourNumber.toString(16);
-let two = '29'.toString(16);
-let three = '39'.toString(16)
-let VERFMT = `KERI${hexString} ${two} ${three}_`   /// version format string
+// let hexString =  yourNumber.toString(16);
+// let two = '29'.toString(16);
+// let three = '39'.toString(16)
+// let VERFMT = `KERI${hexString} ${two} ${three}_`   /// version format string
 
 //nameString.toString("utf8");
 
-console.log("hexString", VERFMT)
+// console.log("hexString", VERFMT)
 
 /**
  * @description  It will return version string 
  */
 function versify(version, kind, size) {
-  if (!Serials.includes(kind))
-    return "Invalid serialization kind =", kind.toString(16)
+   console.log("Object.values(Serials).indexOf(kind) > -1 ==========>",Object.values(Serials).indexOf(kind) > -1)
+  if (!(Object.values(Serials).indexOf(kind) > -1))
+   {return "Invalid serialization kind =", kind.toString(16)} 
+
+ console.log("We are here ")   
   if (!version)
     version = Versionage
-  let hex1 = version[0].toString(16)
-  let hex2 = version[1].toString(16)
+
+    console.log("VERSION  : \n",version['minor'])
+  let hex1 = version['major'].toString(16)
+  let hex2 = version['minor'].toString(16)
   let kind_hex = kind.toString(16)
-  let hex3 = util.pad(size, VERRAWSIZE)
+  let hex3 = util.pad(size.toString(16), VERRAWSIZE)
   return `KERI${hex1}${hex2}${kind_hex}${hex3}_`
 }
 
@@ -72,4 +82,4 @@ function deversify(versionString) {
   return `Invalid version string = ${versionString}`
 }
 
-module.exports = {deversify,versify,Versionage,Serialage,Serials}
+module.exports = {deversify,versify,Versionage,Ilks,Serialage,Serials,IcpLabels,DipLabels}

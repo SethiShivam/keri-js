@@ -1,5 +1,5 @@
 const { Crymat } = require('./cryMat')
-const derivation_code = require('./derivationCode&Length')
+const codeAndLength = require('./derivationCode&Length')
 const libsodium = require('libsodium-wrappers-sumo')
 
 /**
@@ -8,14 +8,15 @@ const libsodium = require('libsodium-wrappers-sumo')
  */
 class Verfer extends Crymat {
 
-    constructor(...kwg) {
-
-        super(...kwg)
-        if (Object.values(derivation_code.oneCharCode.Ed25519N).includes(this._code) ||
-            Object.values(derivation_code.oneCharCode.Ed25519).includes(this._code)) {
+    constructor(raw = null, qb64 = null, qb2 = null, code = codeAndLength.oneCharCode.Ed25519N, index = 0) {
+                console.log("INSIDE VERFER CLASS ====================>")
+        super(raw , qb64 , qb2, code, index )
+        console.log("code coming after verfer class is -------->",this._code)
+        if (Object.values(codeAndLength.oneCharCode.Ed25519N).includes(this._code) ||
+            Object.values(codeAndLength.oneCharCode.Ed25519).includes(this._code)) {
 
             this._verify = this._ed25519
-            
+            console.log("INSIDE VERFER CLASS : this._verify is --------->",this._verify)
         } else {
             throw `Unsupported code = ${this._code} for verifier.`
         }
