@@ -59,12 +59,12 @@ class Serder {
    */
   constructor(raw = Buffer.from('', 'binary'), ked = null, kind = null) {
 
-
+      console.log("INSIDE SERDER CONSTRUCTOR :")
     if (raw)
-      this.raw = raw
+      this._raw = raw
     else if (ked) {
-      this.ked = ked
-      this.kind = kind
+      this._ked = ked
+      this._kind = kind
     }
     else throw 'Improper initialization need raw or ked.'
 
@@ -170,7 +170,7 @@ class Serder {
    * @param {*} kind kind is serialzation kind
    */
   _exhale(ked, kind = null) {
-    let [raw,fore,back] = null
+    let raw,fore,back= null
 
     if (Object.values(JSON.stringify(ked)).includes('vs'))
       throw `Missing or empty version string in key event dict =${ked}`
@@ -269,7 +269,9 @@ if(size != raw.length)
   }
 
   set_kind(){
-    let [ raw, kind, ked, version]  = this._exhale(this._ked,kind)
+    
+    let  raw, kind, ked, version  = this._exhale(this._ked,kind)
+    console.log(" raw, kind, ked, version ============>", raw, kind, ked, version)
     size = raw.length
     this._raw = raw.slice(0,size)
     this._ked = ked
@@ -303,20 +305,6 @@ return this._size
 }
 
 
+module.exports = {Serder}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-let ked = { 'vs': 'KERI10JSON000000_', 'pre': 'ABCDEFG', 'sn': '0001', 'ilk': 'rot' }
-let e1s = 'aa'
-let a = new Serder(null, ked, null)

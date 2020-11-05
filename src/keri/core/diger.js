@@ -12,7 +12,7 @@ const blake3 = require('blake3')
 class Diger extends Crymat {
 
     //This constructor will assign digest verification function to ._verify
-    constructor(raw=null, ser=null, code=derivation_code.oneCharCode.Blake3_256, ...kwa){
+    constructor(raw=null, ser=null, code=derivation_code.oneCharCode.Blake3_256){
         try{
             super(raw , null , null, code,0)
         }catch(error){

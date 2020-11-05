@@ -232,15 +232,15 @@ function test_logger() {
    let _lgr = lgr.next().value
    // #  test .evts sub db methods
 
-   // assert.deepStrictEqual(_lgr.getEvt(key),false)
-   // assert.deepStrictEqual(_lgr.delEvt(key),false)
-   // assert.deepStrictEqual(_lgr.putEvt(key,skedb),true)
-   // assert.deepStrictEqual(_lgr.getEvt(key),skedb)
-   // assert.deepStrictEqual(_lgr.putEvt(key,skedb),false)
-   // assert.deepStrictEqual(_lgr.setEvt(key,skedb),true)
-   // assert.deepStrictEqual(_lgr.getEvt(key),skedb)
-   // assert.deepStrictEqual(_lgr.delEvt(key),true)
-   // assert.deepStrictEqual(_lgr.getEvt(key),false)
+   assert.deepStrictEqual(_lgr.getEvt(key),false)
+   assert.deepStrictEqual(_lgr.delEvt(key),false)
+   assert.deepStrictEqual(_lgr.putEvt(key,skedb),true)
+   assert.deepStrictEqual(_lgr.getEvt(key),skedb)
+   assert.deepStrictEqual(_lgr.putEvt(key,skedb),false)
+   assert.deepStrictEqual(_lgr.setEvt(key,skedb),true)
+   assert.deepStrictEqual(_lgr.getEvt(key),skedb)
+   assert.deepStrictEqual(_lgr.delEvt(key),true)
+   assert.deepStrictEqual(_lgr.getEvt(key),false)
 
 
 

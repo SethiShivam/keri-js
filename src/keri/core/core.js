@@ -7,8 +7,8 @@ var Serialage = { json: "", mgpk: "", cbor: "" }
 var Vstrings = Serialage
 let Serials = { json: "JSON", mgpk: "MGPK", cbor: "CBOR" }
 let Ilks = {icp : "icp",rot : "rot",ixn : "ixn",dip : "dip",drt : "drt",rct :"rct",vrc : "vrc"}
-let IcpLabels = ["sith", "keys", "nxt", "toad", "wits", "cnfg"]
-let DipLabels = ["sith", "keys", "nxt", "toad", "wits", "perm", "seal"]
+let IcpLabels = ["vs", "pre", "sn", "ilk", "sith", "keys", "nxt","toad", "wits", "cnfg"]
+let DipLabels = ["vs", "pre", "sn", "ilk", "dig", "sith", "keys", "nxt","toad", "cuts", "adds", "perm", "seal"]
 
 
 let mimes = {
@@ -82,4 +82,4 @@ function deversify(versionString) {
   return `Invalid version string = ${versionString}`
 }
 
-module.exports = {deversify,versify,Versionage,Ilks,Serialage,Serials,IcpLabels,DipLabels}
+module.exports = {deversify,versify,Versionage,Ilks,Serialage,Serials,IcpLabels,DipLabels,Vstrings}

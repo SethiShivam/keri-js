@@ -57,4 +57,3 @@ function resolveHome(filepath) {
     return filepath;
 }
 
-setupDbEnv()

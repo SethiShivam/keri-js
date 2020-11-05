@@ -1,3 +1,5 @@
+const { isArray } = require("lodash")
+
 function pad(n, width = 3, z = 0) { 
       
     return (String(z).repeat(width) + String(n)).slice(String(n).length)
@@ -13,7 +15,9 @@ function pad(n, width = 3, z = 0) {
 function extractValues(ked, labels){
 
 let values = []
-for (let label in labels){
+console.log("LABELS =========+=>",labels)
+for (let label of labels){
+    console.log("label is -------->",label)
     extractElementValues(ked[label], values)
 }
 return values
@@ -32,8 +36,21 @@ return values
  */
 
 function extractElementValues(element, values) {
-    
-    
+
+    console.log("ELEMENT is --------->",typeof(element))
+    if((element instanceof Array) && !(element instanceof String)){
+            console.log("Inside if ==")
+                for(let k in element)
+                extractElementValues(k, values)
+
+
+
+    }else if (element instanceof String){
+        console.log("Inside elseif ==")
+        values.push(element)        
+    }else  {
+        throw `Unexpected element value =  ${element} Not a str.`
+    }
 }
 
 
@@ -60,4 +77,4 @@ function stringToUint(string) {
     }
     return new Uint8Array(uintArray);
 }
-module.exports = {pad,stringToUint}
+module.exports = {pad,stringToUint,extractValues}

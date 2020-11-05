@@ -1,4 +1,5 @@
 const { Crymat } = require('./cryMat')
+const {extractValues} = require('./utls')
 const derivation_code = require('./derivationCode&Length')
 const libsodium = require('libsodium-wrappers-sumo')
 const blake3 = require('blake3')
@@ -32,7 +33,7 @@ class Prefixer extends Crymat {
      * @description  // This constructor will assign
      *  ._verify to verify derivation of aid  = .qb64
      */
-    constructor(raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null) {
+    constructor(raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null,qb64=null) {
         
        
        
@@ -226,7 +227,7 @@ super(verfer.raw, null,null, verfer.code,0)
 
             let [labels, values, ser, keys, verfer, signer, sigver] = null
             ilk = ked["ilk"]
-            console.log('ILK -------------------------_>',ilk)
+            console.log('ILK -------------------------_>',ked)
             if (ilk == Ilks.icp)
                 labels = this.IcpLabels
             if (ilk == Ilks.icp)
@@ -347,14 +348,14 @@ super(verfer.raw, null,null, verfer.code,0)
   function   _DeriveDigBlake3_256(ked, seed = null, secret = null) {
         let     labels, values, ser, dig = null
         ilk = ked["ilk"]
-
+        console.log("KED are ===========>",ilk)
         if (ilk == Ilks.icp)
             labels = IcpLabels
-        if (ilk == Ilks.icp)
+        else  if (ilk == Ilks.dip)
             labels = DipLabels
         else
             throw `Invalid ilk = ${ilk} to derive pre.`
-
+        console.log("labels =================>",labels)
         for (let l in labels) {
             if (Object.values(ked).includes(l)) { `Missing element = {l} from ked.` }
         }

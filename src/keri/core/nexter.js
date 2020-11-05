@@ -32,7 +32,7 @@ class Nexter extends Diger {
                get sith from ked
                but if not ked then compute sith as simple majority of keys
      */
-    constructor(ser = null, sith = null, keys = null, ked = null, ...kwa) {
+    constructor(ser = null, sith = null, keys = null, ked = null) {
         // let a = null
        var response = null
         try {
