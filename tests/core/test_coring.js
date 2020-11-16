@@ -12,12 +12,14 @@ const { Diger } = require('../../src/keri/core/diger');
 const { Prefixer } = require('../../src/keri/core/prefixer')
 const { Nexter } = require('../../src/keri/core/nexter')
 const { SigMat } = require('../../src/keri/core/sigmat');
+const { Signer } = require('../../src/keri/core/signer');
 const {Serder}  = require('../../src/keri/core/serder')
-const { versify, Serials, Versionage, Ilks, Vstrings } = require('../../src/keri/core/core')
+const { versify, Serials, Versionage, Ilks, Vstrings, Serialage } = require('../../src/keri/core/core')
 const { Base } = require('msgpack5');
 const { copySync } = require('fs-extra');
 const util = require('util');
 const { serialize } = require('v8');
+const signer = require('crypto');
 
 
 
@@ -428,7 +430,7 @@ async function test_nexter() {
  */
 async function test_prefixer() {
   //raw = null, qb64 = null, qb2 = null, code = codeAndLength.oneCharCode.Ed25519N, index = 0
-
+  await libsodium.ready
   let verkey = '\xacr\xda\xc83~\x99r\xaf\xeb`\xc0\x8cR\xd7\xd7\xf69\xc8E\x1e\xd2\xf0=`\xf7\xbf\x8a\x18\x8a`q'
   verkey = Buffer.from(verkey, 'binary')
   // let verfer = new Verfer(verkey)
@@ -437,9 +439,9 @@ async function test_prefixer() {
 
 
 
-  // let nxtkey = "\xa6_\x894J\xf25T\xc1\x83#\x06\x98L\xa6\xef\x1a\xb3h\xeaA:x'\xda\x04\x88\xb2\xc4_\xf6\x00"
-  // nxtkey = Buffer.from(nxtkey, 'binary')
-  // let nxtfer = new Verfer(nxtkey, null, null, code = derivationCodes.oneCharCode.Ed25519)
+  let nxtkey = "\xa6_\x894J\xf25T\xc1\x83#\x06\x98L\xa6\xef\x1a\xb3h\xeaA:x'\xda\x04\x88\xb2\xc4_\xf6\x00"
+  nxtkey = Buffer.from(nxtkey, 'binary')
+ let nxtfer = new Verfer(nxtkey, null, null, code = derivationCodes.oneCharCode.Ed25519)
   // assert.deepStrictEqual(nxtfer.qb64(), 'Dpl-JNEryNVTBgyMGmEym7xqzaOpBOngn2gSIssRf9gA')
 
 
@@ -489,15 +491,15 @@ async function test_prefixer() {
 
 
 
-  let verfer = new Verfer(verkey, null, null, derivationCodes.oneCharCode.Ed25519N, 0)
-  let ked = { keys: [verfer.qb64()], nxt: "" }
-  //  let prefixer = new Prefixer(null, derivationCodes.oneCharCode.Ed25519N, ked)
+  // let verfer = new Verfer(verkey, null, null, derivationCodes.oneCharCode.Ed25519N, 0)
+  // let ked = { keys: [verfer.qb64()], nxt: "" }
+  // //  let prefixer = new Prefixer(null, derivationCodes.oneCharCode.Ed25519N, ked)
 
-  //    assert.deepStrictEqual(prefixer.qb64(), verfer.qb64())
-  //   assert.deepStrictEqual(prefixer.verify(ked), true)
+  // //    assert.deepStrictEqual(prefixer.qb64(), verfer.qb64())
+  // //   assert.deepStrictEqual(prefixer.verify(ked), true)
 
-  // # # Test digest derivation from inception ked
-  ked = { keys: [verfer.qb64()], nxt: "ABCD" }
+  // // # # Test digest derivation from inception ked
+  // ked = { keys: [verfer.qb64()], nxt: "ABCD" }
   let vs = versify(Versionage, Serials.json, 0)
   let sn = 0
   let ilk = Ilks.icp
@@ -509,24 +511,24 @@ async function test_prefixer() {
   let wits = []
   let cnfg = []
   console.log("key is --------->", vs)
-  ked = {
-    vs: vs.toString(),         // version string
-    pre: "",                                       //# qb64 prefix
-    sn: sn.toString(16),             // # hex string no leading zeros lowercase
-    ilk: ilk,
-    sith: sith.toString(16),             //# hex string no leading zeros lowercase
-    keys: keys,                            //# list of qb64
-    nxt: nxt,                              //# hash qual Base64
-    toad: toad.toString(16),             //  # hex string no leading zeros lowercase
-    wits: wits,                            // # list of qb64 may be empty
-    cnfg: cnfg,                           // # list of config ordered mappings may be empty
-  }
+  // ked = {
+  //   vs: vs.toString(),         // version string
+  //   pre: "",                                       //# qb64 prefix
+  //   sn: sn.toString(16),             // # hex string no leading zeros lowercase
+  //   ilk: ilk,
+  //   sith: sith.toString(16),             //# hex string no leading zeros lowercase
+  //   keys: keys,                            //# list of qb64
+  //   nxt: nxt,                              //# hash qual Base64
+  //   toad: toad.toString(16),             //  # hex string no leading zeros lowercase
+  //   wits: wits,                            // # list of qb64 may be empty
+  //   cnfg: cnfg,                           // # list of config ordered mappings may be empty
+  // }
   //util.pad(size.toString(16), VERRAWSIZE)
-  console.log("key is --------->", ked)
-  prefixer = new Prefixer(null, derivationCodes.oneCharCode.Blake3_256, ked)
+//   console.log("key is --------->", keys)
+//  let prefixer1 = new Prefixer(null, derivationCodes.oneCharCode.Blake3_256, ked)
 
-  // assert.deepStrictEqual(prefixer.qb64(), 'EFMo3ix8YSCJn5mVK5TvL5A30V-eOXYKfEsqWRWoA6z4')
-  // assert.deepStrictEqual(prefixer.verify(ked), true)
+  // assert.deepStrictEqual(prefixer1.qb64(), 'ErxNJufX5oaagQE3qNtzJSZvLJcmtwRK3zJqTyuQfMmI')
+  // assert.deepStrictEqual(prefixer1.verify(ked,null), true)
 
 
 
@@ -539,83 +541,97 @@ async function test_prefixer() {
 
 
 
-  // # prefixer = Prefixer(ked=ked, code=CryOneDex.Blake3_256)
-  // # assert prefixer.qb64 == 'EFMo3ix8YSCJn5mVK5TvL5A30V-eOXYKfEsqWRWoA6z4'
-  // # assert prefixer.verify(ked=ked) == True
 
-  // # nexter = Nexter(sith=1, keys=[nxtfer.qb64])
-  // # ked = dict(vs=vs,  # version string
-  // #            pre="",  # qb64 prefix
-  // #            sn="{:x}".format(sn),  # hex string no leading zeros lowercase
-  // #            ilk=ilk,
-  // #            sith="{:x}".format(sith),  # hex string no leading zeros lowercase
-  // #            keys=keys,  # list of qb64
-  // #            nxt=nexter.qb64,  # hash qual Base64
-  // #            toad="{:x}".format(toad),  # hex string no leading zeros lowercase
-  // #            wits=wits,  # list of qb64 may be empty
-  // #            cnfg=cnfg,  # list of config ordered mappings may be empty
-  // #            )
 
-  // # prefixer = Prefixer(ked=ked, code=CryOneDex.Blake3_256)
-  // # assert prefixer.qb64 == 'EBv1R8a4iqdMsU7QmL0cRR9saFtAWPwP-yMRO532FxHo'
-  // # assert prefixer.verify(ked=ked) == True
 
-  // # perm = []
-  // # seal = dict(pre='EkbeB57LYWRYNqg4xarckyfd_LsaH0J350WmOdvMwU_Q',
-  // #             sn='2',
-  // #             ilk=Ilks.ixn,
-  // #             dig='E03rxRmMcP2-I2Gd0sUhlYwjk8KEz5gNGxPwPg-sGJds')
+  let nexter = new Nexter(null,1, [nxtfer.qb64()])
 
-  // # ked = dict(vs=vs,  # version string
-  // #            pre="",  # qb64 prefix
-  // #            sn="{:x}".format(sn),  # hex string no leading zeros lowercase
-  // #            ilk=Ilks.dip,
-  // #            sith="{:x}".format(sith),  # hex string no leading zeros lowercase
-  // #            keys=keys,  # list of qb64
-  // #            nxt=nexter.qb64,  # hash qual Base64
-  // #            toad="{:x}".format(toad),  # hex string no leading zeros lowercase
-  // #            wits=wits,  # list of qb64 may be empty
-  // #            perm=cnfg,  # list of config ordered mappings may be empty
-  // #            seal=seal
-  // #            )
 
-  // # prefixer = Prefixer(ked=ked, code=CryOneDex.Blake3_256)
-  // # assert prefixer.qb64 == 'EzLLOofkapRBf7qbD835qX2ZGZJAOildwZTLfiVTIg04'
-  // # assert prefixer.verify(ked=ked) == True
+  // ked = {
+  //   vs: vs.toString(),         // version string
+  //   pre: "",                                       //# qb64 prefix
+  //   sn: sn.toString(16),             // # hex string no leading zeros lowercase
+  //   ilk: ilk,
+  //   sith: sith.toString(16),             //# hex string no leading zeros lowercase
+  //   keys: keys,                            //# list of qb64
+  //   nxt: nxt,                              //# hash qual Base64
+  //   toad: toad.toString(16),             //  # hex string no leading zeros lowercase
+  //   wits: wits,                            // # list of qb64 may be empty
+  //   cnfg: cnfg,                           // # list of config ordered mappings may be empty
+  // }
 
-  // # #  Test signature derivation
+  // let prefixer1 = new Prefixer(null, derivationCodes.oneCharCode.Blake3_256, ked)
+  //   assert.deepStrictEqual(prefixer1.qb64(), 'ErxNJufX5oaagQE3qNtzJSZvLJcmtwRK3zJqTyuQfMmI')
+  // assert.deepStrictEqual(prefixer1.verify(ked,null), true)
 
-  // # seed = pysodium.randombytes(pysodium.crypto_sign_SEEDBYTES)
-  // # seed = (b'\xdf\x95\xf9\xbcK@s="\xee\x95w\xbf>F&\xbb\x82\x8f)\x95\xb9\xc0\x1eS\x1b{L'
-  // #         b't\xcfH\xa6')
-  // # signer = Signer(raw=seed)
-  // # secret = signer.qb64
-  // # assert secret == 'A35X5vEtAcz0i7pV3vz5GJruCjymVucAeUxt7THTPSKY'
 
-  // # vs = Versify(version=Version, kind=Serials.json, size=0)
-  // # sn = 0
-  // # ilk = Ilks.icp
-  // # sith = 1
-  // # keys = [signer.verfer.qb64]
-  // # nxt = ""
-  // # toad = 0
-  // # wits = []
-  // # cnfg = []
+//    let perm = []
+// let seal = {pre:'EkbeB57LYWRYNqg4xarckyfd_LsaH0J350WmOdvMwU_Q',
+//              sn:'2',
+//             ilk:Ilks.ixn,
+//            dig:'E03rxRmMcP2-I2Gd0sUhlYwjk8KEz5gNGxPwPg-sGJds'}
 
-  // # nexter = Nexter(sith=1, keys=[nxtfer.qb64])
-  // # ked = dict(vs=vs,  # version string
-  // #            pre="",  # qb64 prefix
-  // #            sn="{:x}".format(sn),  # hex string no leading zeros lowercase
-  // #            ilk=ilk,
-  // #            sith="{:x}".format(sith),  # hex string no leading zeros lowercase
-  // #            keys=keys,  # list of qb64
-  // #            nxt=nexter.qb64,  # hash qual Base64
-  // #            toad="{:x}".format(toad),  # hex string no leading zeros lowercase
-  // #            wits=wits,  # list of qb64 may be empty
-  // #            cnfg=cnfg,  # list of config ordered mappings may be empty
-  // #            )
+//            ked = {
+//             vs: vs.toString(),         // version string
+//             pre: "",                                       //# qb64 prefix
+//             sn: sn.toString(16),             // # hex string no leading zeros lowercase
+//             ilk: Ilks.dip,
+//             sith: sith.toString(16),             //# hex string no leading zeros lowercase
+//             keys: keys,                            //# list of qb64
+//             nxt: nexter.qb64(),                              //# hash qual Base64
+//             toad: toad.toString(16),             //  # hex string no leading zeros lowercase
+//             wits: wits,                            // # list of qb64 may be empty
+//             perm:cnfg,
+//             seal:seal                     // # list of config ordered mappings may be empty
+//           }
 
-  // # prefixer = Prefixer(ked=ked, code=CryTwoDex.Ed25519, seed=seed)
+//           let prefixer1 = new Prefixer(null, derivationCodes.oneCharCode.Blake3_256, ked)
+//           assert.deepStrictEqual(prefixer1.qb64(), 'ErxNJufX5oaagQE3qNtzJSZvLJcmtwRK3zJqTyuQfMmI')
+//         assert.deepStrictEqual(prefixer1.verify(ked,null), true)
+
+
+//   // # #  Test signature derivation
+
+ let seed =  libsodium.randombytes_buf(libsodium.crypto_sign_SEEDBYTES)
+ let seed1  = '\xdf\x95\xf9\xbcK@s="\xee\x95w\xbf>F&\xbb\x82\x8f)\x95\xb9\xc0\x1eS\x1b{Lt\xcfH\xa6'
+ seed = Buffer.from(seed1, 'binary')
+ let signer = new Signer(seed)
+    
+//  secret = signer.qb64()
+//  assert.deepStrictEqual(secret, 'A35X5vEtAcz0i7pV3vz5GJruCjymVucAeUxt7THTPSKY')
+  
+
+   vs =  versify(version=Versionage, kind=Serials.json, size=0)
+   sn = 0
+   ilk = Ilks.icp
+   sith = 1
+   keys = [signer.qb2()]
+   nxt = ""
+   toad = 0
+   wits = []
+   cnfg = []
+
+   let nexter1 = new Nexter(null,1, [nxtfer.qb64()])
+let t = keys[0]
+    console.log("Keys are ******************************************************",t.toString())
+       let    ked = {
+            vs: vs.toString(),         // version string
+            pre: "",                                       //# qb64 prefix
+            sn: sn.toString(16),             // # hex string no leading zeros lowercase
+            ilk: ilk,
+            sith: sith.toString(16),              //# hex string no leading zeros lowercase
+            keys: keys,                            //# list of qb64
+            nxt: nexter1.qb64(),                              //# hash qual Base64
+            toad: toad.toString(16),             //  # hex string no leading zeros lowercase
+            wits: wits,                            // # list of qb64 may be empty
+            cnfg:cnfg,
+                 // # list of config ordered mappings may be empty
+          }
+
+
+ let  prefixer1 = new Prefixer(null,derivationCodes.twoCharCode.Ed25519,ked,seed)
+ assert.deepStrictEqual(prefixer1.qb64(), '0B0uVeeaCtXTAj04_27g5pSKjXouQaC1mHcWswzkL7Jk0XC0yTyNnIvhaXnSxGbzY8WaPv63iAfWhJ81MKACRuAQ')
+ assert.deepStrictEqual(prefixer1.verify(ked,null), true)
   // # assert prefixer.qb64 == '0B0uVeeaCtXTAj04_27g5pSKjXouQaC1mHcWswzkL7Jk0XC0yTyNnIvhaXnSxGbzY8WaPv63iAfWhJ81MKACRuAQ'
   // # assert prefixer.verify(ked=ked) == True
 
@@ -851,24 +867,35 @@ async function test_serder() {
   }
   let Version= Versionage
 
-  let serder = new Serder(null,e1)
+  // let serder = new Serder(null,e1)
+  // serder.set_kind()
 
-  assert.deepStrictEqual(serder._ked , e1)
-  assert.deepStrictEqual(serder.set_kind() , Serials.json)
+  // serder.set_raw(Buffer.from(JSON.stringify(e1),'binary'))
+
+  // assert.deepStrictEqual(serder._ked , e1)
+  // assert.deepStrictEqual(serder._kind , Serials.json)
   // assert.deepStrictEqual(serder.version() , Version)
-  // assert.deepStrictEqual(serder.version() , Version)
-  // assert.deepStrictEqual(serder.dig() , 'EaDVEkrFdx8W0ZZAsfwf9mjxhgBt6PvfCmFPdr7RIcfY')
+
+
+// assert.deepStrictEqual(serder.dig() , 'EaDVEkrFdx8W0ZZAsfwf9mjxhgBt6PvfCmFPdr7RIcfY')
   // assert.deepStrictEqual(serder.digb() , Buffer.from('EaDVEkrFdx8W0ZZAsfwf9mjxhgBt6PvfCmFPdr7RIcfY','binary'))
   // assert.deepStrictEqual(serder.size() , 66)
   // assert.deepStrictEqual(serder.raw() , Buffer.from('{"vs":"KERI10JSON000042_","pre":"ABCDEFG","sn":"0001","ilk":"rot"}','binary'))
+ 
+ // ------------------------- SERDER VERFER IS PENDING -----------------------
+  // assert.deepStrictEqual(serder.verfer , [])
 
 
+  let e1s = Buffer.from(JSON.stringify(e1),'binary')
+  console.log("Els length is ------>",e1s.length)
+  let vs = versify(null,Serialage.json,e1s.length)
+  assert.equal(vs ,'KERI10JSON000042_')
 }
 // test_verfer()
-// test_serder()
+ test_serder()
 // test_nexter()
 // test_cryMat()
 // test_crycounter()
 // tecrycounter()
 // test_sigmat()
-test_prefixer()
+//test_prefixer()
