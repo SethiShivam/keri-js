@@ -2,6 +2,9 @@
 const codeAndLength = require('./derivationCode&Length')
 var Base64 = require('urlsafe-base64');
 const intToB64 = require('./../help/stringToBinary')
+
+const util= require('util');
+const encoder = new util.TextEncoder('utf-8');
 /**
  * @description CRYPTOGRAPHC MATERIAL BASE CLASS
  * @subclasses  provides derivation codes and key event element context specific
@@ -32,7 +35,7 @@ class Crymat {
         Else when qb64 or qb2 provided extract and assign .raw and .code
         */
        console.log("RAW AND CODE ARE :",raw,qb64,qb2)
-        console.log("raw length is ----->", raw)
+        console.log("raw length is ----->", qb64)
         console.log("Code ----->", code)
         ///typeof(this.raw)== typeof(Buffer.from('', 'binary') ||typeof(this.raw)== typeof(Buffer.from('', 'binary'))))
         if (raw) {  
@@ -64,7 +67,7 @@ class Crymat {
                 " not size= ${codeAndLength.cryAllRawSizes[code]}.`
             }
             this._code = code
-            console.log("updated code is -------------->", raw)
+            console.log("updated code is -------------->", code)
             this._index = index
             this._raw = raw  // crypto ops require bytes not bytearray
 
@@ -73,7 +76,7 @@ class Crymat {
 
         else if (qb64 != null) {
             qb64 = qb64.toString('utf-8')
-            console.log("qb64---------------->", qb64)
+            console.log("qb64---------------->", qb64.length)
             this._exfil(qb64)
         }
         else if (qb2 != null) {
@@ -99,7 +102,7 @@ class Crymat {
         console.log("qb64 length is --------------> ", qb64.length)
         let cs = 1   //code size
         let code_slice = qb64.slice(0, cs)
-        console.log("slicing code is ------------->", code_slice)
+        console.log("slicing code is ------------->")
         let index = 0
         if (Object.values(codeAndLength.oneCharCode).includes(code_slice)) {
             console.log("codeAndLength.CryOneSizes[code_slice] ---------------->", code_slice,codeAndLength.CryOneSizes[code_slice])
@@ -185,14 +188,14 @@ class Crymat {
             console.log("value of l and full are : ",'\n', full)
         let pad = this.pad()
         // Validate pad for code length
-        console.log("PAD ==============>", full)
+        console.log("PAD ==============>", pad)
         if ((full).length % 4 != pad) {
             // Here pad is not the reminder of code length
             throw `Invalid code = ${this._code} for converted raw pad = ${this._pad}.`
         }
         console.log("FULL -------->",full + Base64.encode(this._raw))
         // console.log("Base64.encode(this.raw) -------->",Base64.encode(this.raw), '',(Base64.encode(this.raw)).length)
-        //  console.log("pad ---------------_>",(Base64.encode(this.raw)).slice(0, -pad))
+          console.log("FULLL PAD ---------------_>",full,'\n',(Base64.encode(this.raw())).slice(0, -pad))
 
         return (full + Base64.encode(this._raw))
     }
@@ -212,7 +215,7 @@ class Crymat {
         """
      */
     qb64b() {
-        return encodeURIComponent(this.qb64())
+        return Buffer.from(this.qb64(),'binary')
     }
 
 
@@ -226,7 +229,7 @@ class Crymat {
          */
         //  Buffer.from(this._infil(), 'utf-8')
 
-        return Base64.decode(encodeURIComponent(this._infil())).toString()  
+        return Base64.decode(encoder.encode(this._infil())).toString()  
     }
 
     raw() {

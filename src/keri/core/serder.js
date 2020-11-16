@@ -1,9 +1,16 @@
 
-const { Versionage, Serials, deversify,versify } = require('../core/core')
+const { Versionage, Serials, deversify,versify,MINSNIFFSIZE } = require('../core/core')
+const codeAndLength = require('./derivationCode&Length')
 const _ = require('lodash')
-const msgpack = require('msgpack5')()
+var msgpack = require('msgpack5')() // namespace our extensions
+  , encode  = msgpack.encode
+  , decode  = msgpack.decode
 var cbor = require('cbor');
+var blake3 = require('blake3')
 const {Diger} = require('../core/diger')
+const {replacer} = require('./utls')
+const XRegExp = require('xregexp');
+const { encodeURI } = require('js-base64');
 /**
  * @description  Serder is KERI key event serializer-deserializer class
     Only supports current version VERSION
@@ -79,30 +86,53 @@ class Serder {
    */
 
   _sniff(raw) {
+   
+ 
+        let [major,minor,kind,size] = ''
+      if(raw.length < MINSNIFFSIZE)
+      throw `"Need more bytes."`
 
-    const version_pattern = 'KERI\(\?P<major>\[0\-9a\-f\]\)\(\?P<minor>\[0\-9a\-f\]\)\(\?P<kind>\[A\-Z\]\{4\}\)\(\?P<size>\[0\-9a\-f\]\{6\}\)_'
-    let match = version_pattern.exec(raw)
-    let total_matches = raw.matchAll(version_pattern)
-    let total_subgroups = []
+      const version_pattern = Buffer.from('KERI(?<major>[0-9a-f])(?<minor>[0-9a-f])(?<kind>[A-Z]{4})(?<size>[0-9a-f]{6})_','binary')
+      const regex = XRegExp(version_pattern)
+      let response =  XRegExp.exec(raw,regex)
 
-    for (const subgroups of total_matches) { total_subgroups.push(subgroups) }
 
-    let search = raw.search(version_pattern)
-    if (!(match) || search > 12)
+      console.log("Response is ------------>",response.major)
+      console.log("REGEX Match is --------->",response )
+
+      if (!(response) || response.kind > 12)
       throw `Invalid version string in raw = ${raw}`
-    let [major, minor, kind, size] = total_subgroups
 
-    Versionage.major = parseInt(major, 16)
-    Versionage.minor = parseInt(minor, 16)
+      major = response.major
+      minor = response.minor
+      kind  = response.kind
+      size = response.size
+      console.log("major,minor,kind,size are ----------->",major,minor,kind,raw.length)
+      // response.minor,response.kind,response.size
+      Versionage.major = parseInt(major, 16)
+      Versionage.minor = parseInt(minor, 16)
+      let version = Versionage
+      console.log("VERSION  IS --------->",kind)
+      kind = kind.toString()
 
-    let version = versionage
-    kind = decodeURIComponent(kind)
+      if (!(Object.values(Serials).includes(kind))){
+        console.log("Condition Failed ==============>")
+        throw `Invalid serialization kind = ${kind}`
+      }
+ 
+      size = parseInt(size, 16)
+  return[kind, version, size]
 
-    if (!Object.values(JSON.stringify(Serials)).includes(kind))
-      throw `Invalid serialization kind = ${kind}`
 
-    size = parseInt(size, 16)
-    return { 'kind': kind, 'version': version, 'size': size }
+
+
+
+
+
+    //let match = re.exec(raw)
+        //let match = version_pattern.exec(raw)
+      //   let t = Buffer.from(raw,'binary')
+      //  let match_string = raw.match(re)
   }
 
 
@@ -117,11 +147,11 @@ class Serder {
    * @param {}  kind kind is str of raw serialization kind (see namedtuple Serials)
    * @param {} size size is int size of raw to be deserialized
    */
-  _inhale(raw) {
+    _inhale(raw) {
 
 
     let [kind, version, size] = this._sniff(raw)
-
+    let ked = null
     if (!(_.isEqual(version, Versionage)))
       throw `Unsupported version = ${Versionage.major}.${Versionage.minor}`
 
@@ -129,14 +159,16 @@ class Serder {
       throw `Need more bytes`
     if (kind == Serials.json) {
       try {
-        ked = JSON.parse(decodeURIComponent(raw.slice(0, size)))
+        console.log("Raw is -------->",size)
+        ked = JSON.parse((raw).slice(0, size))
       } catch (error) {
+        console.log("ERROE is ",error)
         throw error
       }
     }
     else if (kind == Serials.mgpk) {
       try {
-        ked = msgpack.decode(decodeURIComponent(raw.slice(0, size)))
+        ked = decode(decodeURIComponent(raw.slice(0, size)))
 
       } catch (error) {
         throw error
@@ -156,7 +188,7 @@ class Serder {
     }
     else ked = null
 
-    return { 'ked': ked, 'kind': kind, 'version': version, 'size': size }
+    return [ ked, kind,  version,  size ]
   }
 
 
@@ -176,20 +208,27 @@ class Serder {
       throw `Missing or empty version string in key event dict =${ked}`
 
     let [knd, version, size] = deversify(ked['vs'])
+    console.log("Version ------------>",version)
     if (!(_.isEqual(version, Versionage)))
       throw `Unsupported version = ${Versionage.major}.${Versionage.minor}`
 
     if (!kind)
       kind = knd
 
-    if (!(Object.values(JSON.stringify(Serials)).includes(kind)))
+    if (!(Object.values(Serials).includes(kind))){
+      console.log("Condition Failed ==============>")
       throw `Invalid serialization kind = ${kind}`
+    }
+      
 
-    if (kind == Serials.json)
-      raw = json.dumps(ked, separators = (",", ":"), ensure_ascii = False).encode("utf-8")
+    if (kind == Serials.json){
+      console.log("We are here ==============>")
+      raw = JSON.stringify(ked,replacer) 
+    }
+     
 
     else if (kind == Serials.mgpk)
-      raw = msgpack.dumps(ked)
+      raw = encode(ked).toString('hex')
 
     else if (kind == Serials.cbor)
       raw = cbor.dumps(ked)
@@ -197,50 +236,62 @@ class Serder {
     else {
       throw `Invalid serialization kind = ${kind}`
     }
+      console.log("Value of Raw is -------->",raw)
+     size = raw.length
+ const version_pattern = Buffer.from('KERI(?<major>[0-9a-f])(?<minor>[0-9a-f])(?<kind>[A-Z]{4})(?<size>[0-9a-f]{6})_','binary')
+ //let re = new RegExp(version_pattern) 
+  const regex = XRegExp(version_pattern)
 
-    size = raw.length
- const version_pattern = 'KERI\(\?P<major>\[0\-9a\-f\]\)\(\?P<minor>\[0\-9a\-f\]\)\(\?P<kind>\[A\-Z\]\{4\}\)\(\?P<size>\[0\-9a\-f\]\{6\}\)_'
-    let match = version_pattern.exec(raw)
-    // let total_matches = raw.matchAll(version_pattern)
-
-    let search = raw.search(version_pattern)
-    if (!(match) || search > 12)
+//  let abc =  XRegExp.matchRecursive(Buffer.from(raw),'\\(', '\\)', 'g');
+ let response =    XRegExp.exec(Buffer.from(raw),regex)
+//let match = re.exec(raw)
+    //let match = version_pattern.exec(raw)
+  //   let t = Buffer.from(raw,'binary')
+  //  let match_string = raw.match(re)
+      console.log("REGEX Match is --------->",response.lastIndexOf(response.kind,response.index) )
+    // let search = raw.search(version_pattern)
+    if (!(response) || response.kind > 12)
       throw `Invalid version string in raw = ${raw}`
 
-while (match_response = version_pattern.exec(raw)) {
-  console.log(match_response.index + ' ' + version_pattern.lastIndex);
-  fore = match_response.index
-  back = version_pattern.lastIndex
+// while (match = re.exec(raw)) {
+//   console.log(match.index + ' ' + re.lastIndex);
+//   fore = match.index
+//   back = re.lastIndex
+//     match ++ 
+// }
 
-}
+let vs = versify(version,kind,size)
 
-vs = versify(version,kind,size)
-
-raw = Buffer.from('%b%b%b','binary') % (raw.slice(0,fore), vs.encode("utf-8"), raw.slice(back,raw.length))
+let traw = Buffer.from('%b%b%b','binary') % (raw.slice(0,fore), encodeURIComponent(vs), raw.slice(response.lastIndexOf(response.kind,7),raw.length))
+console.log("Size and Traw are --------->",size,traw.length)
 if(size != raw.length)
     throw `Malformed version string size = ${vs}`
 
     ked['vs'] = vs 
 
-    return {'raw' :raw, 'kind' : kind, 'ked' : ked, 'version' : version}
+    return [raw, kind, ked,version]
   }
 
 
   raw(){
-
-    this.raw
+    
+    return this._raw
 
   }
 
   set_raw(raw){
+    console.log("INSIDE SET_RAW ==================>")
   let [ ked, kind, version, size]  = this._inhale(raw)
     this._raw = Buffer.from(raw.slice(0,size),'binary') // # crypto ops require bytes not bytearray
     this._ked = ked
     this._kind = kind
     this._version = version
     this._size = size
-    this._diger =  new Diger(raw=blake3.blake3(self._raw).digest(),null,
-                        code=CryOneDex.Blake3_256)
+    const hasher = blake3.createHash();
+    let dig = blake3.hash(this._raw);
+    let digest = hasher.update(this._raw).digest('')
+    this._diger =  new Diger(digest,null,
+                        codeAndLength.oneCharCode.Blake3_256)
 
   }
 
@@ -258,8 +309,11 @@ if(size != raw.length)
     this._kind = kind
     this._version = version
     this._size = size
-    this._diger =  new Diger(raw=blake3.blake3(self._raw).digest(),null,
-                        code=CryOneDex.Blake3_256)
+    const hasher = blake3.createHash();
+    let dig = blake3.hash(this._raw);
+    let digest = hasher.update(this._raw).digest('')
+    this._diger =  new Diger(raw=digest,null,
+                        code=codeAndLength.oneCharCode.Blake3_256)
 
   }
 
@@ -270,7 +324,7 @@ if(size != raw.length)
 
   set_kind(){
     
-    let  raw, kind, ked, version  = this._exhale(this._ked,kind)
+    let  [raw, kind, ked, version]  = this._exhale(this._ked)
     console.log(" raw, kind, ked, version ============>", raw, kind, ked, version)
     size = raw.length
     this._raw = raw.slice(0,size)
@@ -290,17 +344,24 @@ return this._size
   }
 
   diger(){
+    const hasher = blake3.createHash();
+    let dig = blake3.hash(this._raw);
+    let digest = hasher.update(this._raw).digest('')
+    this._diger =  new Diger(digest,null,
+                        codeAndLength.oneCharCode.Blake3_256)
     return this._diger
   }
 
   dig(){
+      let diger = this.diger()
+      console.log("DIger ------->",diger)
 
-    return this.diger.qb64
+    return diger.qb64()
   }
 
   digb(){
-
-    return this.diger.qb64b
+    let diger = this.diger()
+    return diger.qb64b()
   }
 }
 

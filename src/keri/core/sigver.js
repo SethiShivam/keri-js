@@ -1,6 +1,7 @@
 const { Crymat } = require('./cryMat')
 const verfer = require('./verfer')
 const { Verfer } = require('./verfer')
+const derivation_code = require('./derivationCode&Length')
 
 
 
@@ -12,9 +13,9 @@ const { Verfer } = require('./verfer')
  */
 class Sigver extends Crymat {
 
-  constructor(verfer = null, ...kwg) {
+  constructor(raw=null, code=derivation_code.twoCharCode.Ed25519, verfer=null,index = 0) {
 // Assign verfer to .verfer attribute
-        super(...kwg)
+        super(raw ,null,null,code,index)
         this._verfer = verfer
     }
 

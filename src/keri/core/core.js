@@ -20,8 +20,9 @@ let mimes = {
 // let hexString =  yourNumber.toString(16);
 // let two = '29'.toString(16);
 // let three = '39'.toString(16)
-// let VERFMT = `KERI${hexString} ${two} ${three}_`   /// version format string
-
+//let VERFMT = `KERI${hexString} ${two} ${three}_`   /// version format string
+let VERFULLSIZE = 17 
+let MINSNIFFSIZE = 12 + VERFULLSIZE 
 //nameString.toString("utf8");
 
 // console.log("hexString", VERFMT)
@@ -29,8 +30,8 @@ let mimes = {
 /**
  * @description  It will return version string 
  */
-function versify(version, kind, size) {
-   console.log("Object.values(Serials).indexOf(kind) > -1 ==========>",Object.values(Serials).indexOf(kind) > -1)
+function versify(version=null, kind=Serials.json, size) {
+let sz =size 
   if (!(Object.values(Serials).indexOf(kind) > -1))
    {return "Invalid serialization kind =", kind.toString(16)} 
 
@@ -42,7 +43,12 @@ function versify(version, kind, size) {
   let hex1 = version['major'].toString(16)
   let hex2 = version['minor'].toString(16)
   let kind_hex = kind.toString(16)
-  let hex3 = util.pad(size.toString(16), VERRAWSIZE)
+  let hex3 = util.pad('66'.toString(16), VERRAWSIZE)
+  console.log("kind -------->",hex3)
+  
+  console.log('version[0]----------->',version['major'])
+  console.log('version[1]---------->',version['minor'])
+  console.log('KERI${hex1}${hex2}${kind_hex}${hex3}_[1]---------->',`KERI${hex1}${hex2}${kind_hex}${hex3}_`)
   return `KERI${hex1}${hex2}${kind_hex}${hex3}_`
 }
 
@@ -54,9 +60,8 @@ Vstrings.cbor = versify(version = "", kind = Serials.cbor, size = 0)
 
 
 const version_pattern = 'KERI(?P<major>[0-9a-f])(?P<minor>[0-9a-f])(?P<kind>[A-Z]{4})(?P<size>[0-9a-f]{6})_'
-const version_pattern1 = 'KERI\(\?P<major>\[0\-9a\-f\]\)\(\?P<minor>\[0\-9a\-f\]\)\(\?P<kind>\[A\-Z\]\{4\}\)\(\?P<size>\[0\-9a\-f\]\{6\}\)_'
-const VEREX = version_pattern1
-
+const version_pattern1 = `KERI\(\?P<major>\[0\-9a\-f\]\)\(\?P<minor>\[0\-9a\-f\]\)\(\?P<kind>\[A\-Z\]\{4\}\)\(\?P<size>\[0\-9a\-f\]\{6\}\)_`
+const VEREX = "KERI([0-9a-f])([0-9a-f])([A-Z]{4})([0-9a-f]{6})_"
 
 // Regex pattern matching 
 
@@ -69,17 +74,26 @@ const VEREX = version_pattern1
  */
 function deversify(versionString) {
   let kind, size, version = Versionage
+  console.log("versionString ------_>",versionString)
   // we need to identify how to match the bffers pattern like we do regex matching for strings
-  let match = version_pattern1.exec(versionString)
-
+  let sub_matches = []
+  let re = new RegExp(VEREX) 
+ 
+ let match = re.exec(versionString)
+//  while (match = versionString.match(VEREX)) {
+//   sub_matches.push(match)
+// }
+  // let match = version_pattern.match(versionString)
+  console.log("Match is ------------------>",match)
   if (match) {
-    [version.major, version.minor, kind, size] = [match[0], match[1], match[2], match[3]]
+    [version.major, version.minor, kind, size] = [match[1], match[2], match[3], match[4]]
+    console.log("Value of kind is -------->",kind)
     if (!Object.values(Serials).includes(kind))
       throw `Invalid serialization kind = ${kind}`
-    return { 'type': kind, 'version': version, 'size': size }
+    return [kind,  version,  size ]
 
   }
   return `Invalid version string = ${versionString}`
 }
 
-module.exports = {deversify,versify,Versionage,Ilks,Serialage,Serials,IcpLabels,DipLabels,Vstrings}
+module.exports = {deversify,versify,Versionage,Ilks,Serialage,Serials,IcpLabels,DipLabels,Vstrings,MINSNIFFSIZE}

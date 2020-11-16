@@ -18,8 +18,9 @@ let values = []
 console.log("LABELS =========+=>",labels)
 for (let label of labels){
     console.log("label is -------->",label)
-    extractElementValues(ked[label], values)
+  values =   extractElementValues(ked[label], values)
 }
+console.log("extractValues are = ",values)
 return values
 }
 
@@ -36,21 +37,33 @@ return values
  */
 
 function extractElementValues(element, values) {
+        var val_array = []
+    console.log("ELEMENT is --------->",element)
 
-    console.log("ELEMENT is --------->",typeof(element))
-    if((element instanceof Array) && !(element instanceof String)){
+    try{
+      //  console.log("Inside Try",element instanceof Array ,element instanceof String,typeof(element) == 'string' )
+    if((element instanceof Array) && !(typeof(element) == 'string')){
             console.log("Inside if ==")
                 for(let k in element)
                 extractElementValues(k, values)
 
 
 
-    }else if (element instanceof String){
+    }else if (typeof(element) == 'string'){
         console.log("Inside elseif ==")
         values.push(element)        
-    }else  {
-        throw `Unexpected element value =  ${element} Not a str.`
     }
+    val_array = values
+    // else  {
+    //     throw `Unexpected element value =  ${element} Not a str.`
+    // }
+  }catch(error){
+      console.log("ERROR caused while calling extractElementValues")
+            throw error
+    }
+
+    console.log("val_array ==================>",val_array)
+    return val_array
 }
 
 
@@ -77,4 +90,38 @@ function stringToUint(string) {
     }
     return new Uint8Array(uintArray);
 }
-module.exports = {pad,stringToUint,extractValues}
+
+
+function range(start, stop, step) {
+    if (typeof stop == 'undefined') {
+        // one param defined
+        stop = start;
+        start = 0;
+    }
+
+    if (typeof step == 'undefined') {
+        step = 1;
+    }
+
+    if ((step > 0 && start >= stop) || (step < 0 && start <= stop)) {
+        return [];
+    }
+
+    var result = [];
+    for (var i = start; step > 0 ? i < stop : i > stop; i += step) {
+        result.push(i);
+    }
+
+    return result;
+};
+
+
+const replacer = (key, value) =>
+  value instanceof Object && !(value instanceof Array) ? 
+    Reflect.ownKeys(value)
+    .reduce((ordered, key) => {
+      ordered[key] = value[key];
+      return ordered 
+    }, {}) :
+    value;
+module.exports = {pad,stringToUint,extractValues,range,replacer}

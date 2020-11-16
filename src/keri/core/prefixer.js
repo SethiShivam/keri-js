@@ -39,7 +39,7 @@ class Prefixer extends Crymat {
        
         try {
             console.log("INSIDE PREFIXER CLASS :")
-            console.log("KED :",ked)
+            console.log("KED :",(ked.keys[0]))
             console.log("Super: (Code,raw)",code,raw)
              super(raw, null, null, code, 0)
            //  throw 'Improper initialization need raw or b64 or b2.';
@@ -64,32 +64,40 @@ class Prefixer extends Crymat {
                 console.log("INSIDE Blake3_256")
                 _derive = _DeriveDigBlake3_256
                }
-        else if (code == CryTwoDex.Ed25519)
+        else if (code == derivation_code.twoCharCode.Ed25519)
                 _derive = _DeriveSigEd25519
         else
             throw `Unsupported code = ${code} for prefixer.`
 
 console.log("KED is ----------------->",ked)
 let  verfer = _derive(ked,seed,secret) // else obtain AID using ked
-
+console.log('DERIVED RAW AND CODE iS : ================>',verfer)
 super(verfer.raw, null,null, verfer.code,0)
          
-            if (code == derivation_code.oneCharCode.Ed25519N)
+            if (code == derivation_code.oneCharCode.Ed25519N){
+                console.log("INSIDE ED25519N")
+                this._verify = this._VerifyBasicEd25519
+            }
+            
+        else if (code == derivation_code.oneCharCode.Ed25519){
+            console.log("INSIDE Ed25519")
             this._verify = this._VerifyBasicEd25519
-        else if (code == derivation_code.oneCharCode.Ed25519)
-            this._verify = this._VerifyBasicEd25519
-        else if (code == derivation_code.oneCharCode.Blake3_256)
+        }
+            
+        else if (code == derivation_code.oneCharCode.Blake3_256){
+            console.log("INSIDE Blake3_256")
             this._verify = this._VerifyDigBlake3_256
-        else if (code== derivation_code.twoCharCode.Ed25519)
+        }
+            
+        else if (code== derivation_code.twoCharCode.Ed25519){
+            console.log("INSIDE twoCharCode.Ed25519")
             this._verify = this._VerifySigEd25519
+        }
+            
         else
             throw `Unsupported code = ${this.code} for prefixer.`
         }
 
-
-
-
-    
 
 
 
@@ -107,22 +115,12 @@ super(verfer.raw, null,null, verfer.code,0)
 
 
 
-
-
-
-
-
-
-
-
-
-
     /**
      * @description  This function will return TRUE if derivation from iked for .code matches .qb64
      * @param {*} ked inception key event dict
      */
     verify(ked,pre) {
-
+            console.log("Inside Verify Method ********************")
         return this._verify(ked = ked, pre = this.qb64())
 
     }
@@ -191,23 +189,24 @@ super(verfer.raw, null,null, verfer.code,0)
      */
     _VerifyDigBlake3_256(ked, pre) {
 
-        let raw, code = ''
+        let [raw, code,response,crymat] = ''
         try {
 
-            response = this._DeriveDigBlake3_256(ked = ked)
-            raw = response.dig
-            code = response.blake3_256
+            response = _DeriveDigBlake3_256(ked = ked)
+            raw = response.raw
+            code = response.code
 
-            crymat = CryMat(raw = raw, code = derivation_code.oneCharCode.Blake3_256)
-            if (crymat.qb64 != pre)
-                return False
+            crymat = new Crymat(raw,null,null, code)
+            if (crymat.qb64() != pre)
+                return false
 
 
 
-        } catch (exception) {
+        } catch (error) {
+            console.log("error is =============>",error)
             return false
         }
-        return True
+        return true
 
     }
 
@@ -229,9 +228,9 @@ super(verfer.raw, null,null, verfer.code,0)
             ilk = ked["ilk"]
             console.log('ILK -------------------------_>',ked)
             if (ilk == Ilks.icp)
-                labels = this.IcpLabels
+                labels = IcpLabels
             if (ilk == Ilks.icp)
-                labels = this.DipLabels
+                labels = DipLabels
             else
                 throw `Invalid ilk = ${ilk} to derive pre.`
 
@@ -239,7 +238,7 @@ super(verfer.raw, null,null, verfer.code,0)
                 if (!Object.values(ked).includes(l)) { `Missing element = ${l} from ked.` }
             }
 
-            values = extractValues(ked = ked, labels = labels)
+            values = extractValues(ked,labels)
             ser = Buffer.from("".concat(values), 'utf-8')
             try {
                 if (keys.length != 1)
@@ -360,10 +359,10 @@ super(verfer.raw, null,null, verfer.code,0)
             if (Object.values(ked).includes(l)) { `Missing element = {l} from ked.` }
         }
 
-        values = extractValues(ked = ked, labels = labels)
+        values = extractValues(ked,labels)
         ser = Buffer.from("".concat(values), 'utf-8')
         dig = blake3.createHash(ser).digest()
-        return { 'dig': dig, 'blake3_256': derivation_code.oneCharCode.Blake3_256 }
+        return { 'raw': dig, 'code': derivation_code.oneCharCode.Blake3_256 }
     }
 
 
@@ -377,22 +376,21 @@ super(verfer.raw, null,null, verfer.code,0)
      * 
      */
 function  _DeriveSigEd25519(ked, seed = null, secret = null) {
-        
-        let [labels, values, ser, keys, verfer, signer, sigver] = null
+        console.log("INSIDE _DeriveSigEd25519")
+        let labels, values, ser, keys, verfer, signer, sigver = null
         ilk = ked["ilk"]
-
-        if (ilk == Ilks.icp)
-            labels = this.IcpLabels
-        if (ilk == Ilks.icp)
-            labels = this.DipLabels
+        console.log("ILK is ------->",ilk)
+        if (ilk == Ilks.icp){labels = IcpLabels}            
+        else if (ilk == Ilks.dip){labels = DipLabels}    
         else
             throw `Invalid ilk = ${ilk} to derive pre.`
 
+        console.log("IcpLabels ================>",IcpLabels)
         for (let l in labels) {
             if (!Object.values(ked).includes(l)) { `Missing element = {l} from ked.` }
         }
-
-        values = extractValues(ked = ked, labels = labels)
+        console.log("labels ---------->",labels)
+        values = extractValues(ked,labels)
         ser = Buffer.from("".concat(values), 'utf-8')
 
         try {
@@ -400,7 +398,7 @@ function  _DeriveSigEd25519(ked, seed = null, secret = null) {
             if (keys.length != 1)
                 throw `Basic derivation needs at most 1 key  got ${keys.length} keys instead`
 
-            verfer = Verfer(qb64 = keys[0])
+            verfer = new Verfer(null,keys[0])
         } catch (exception) {
             throw Error`extracting public key = ${exception}`
         }
@@ -417,7 +415,7 @@ function  _DeriveSigEd25519(ked, seed = null, secret = null) {
             throw `Key in ked not match seed.`
 
         sigver = signer.sign(ser = ser)
-        return { 'sigver': sigver.raw, 'Ed25519': derivation_code.twoCharCode.Ed25519 }
+        return { 'raw': sigver.raw, 'code': derivation_code.twoCharCode.Ed25519 }
 
     }
 

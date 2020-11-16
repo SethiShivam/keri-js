@@ -21,12 +21,14 @@
     "lmdb-store": "^0.3.21",
     "lodash": "^4.17.20",
     "msgpack5": "^4.2.1",
+    "multi-regexp2": "git+https://github.com/valoricDe/MultiRegExp2.git",
     "node-lmdb": "^0.9.4",
     "nodemon": "^2.0.4",
     "tmp": "^0.2.1",
     "urlsafe-base64": "^1.0.0",
     "utf8": "^3.0.0",
-    "util": "^0.12.3"
+    "util": "^0.12.3",
+    "xregexp": "^4.4.0"
   },
   "devDependencies": {
     "electron-rebuild": "^2.2.0"
