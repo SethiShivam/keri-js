@@ -33,63 +33,66 @@ class Prefixer extends Crymat {
      * @description  // This constructor will assign
      *  ._verify to verify derivation of aid  = .qb64
      */
-    constructor(raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null,qb64=null) {
+    constructor(raw = null, code = derivation_code.oneCharCode.Ed25519N, ked = null, seed = null, secret = null,qb64=null,qb2 = null) {
         
-       
+        var _derive = null
        
         try {
             console.log("INSIDE PREFIXER CLASS :")
-            console.log("KED :",(ked.keys[0]))
-            console.log("Super: (Code,raw)",code,raw)
-             super(raw, null, null, code, 0)
+            console.log("KED :")
+            console.log("Super: (Code,raw)",code,raw,qb64)
+             super(raw, qb64, qb2, code, 0)
            //  throw 'Improper initialization need raw or b64 or b2.';
             
         } catch (error) {
+            console.log("ERROR is ------->",error)
             if (!(ked || code))
                 throw error  // throw error if no ked found 
 
-    
-        }
-        var _derive = null
-        console.log("INSIDE CATCH ERROR")
-            if (code == derivation_code.oneCharCode.Ed25519N)
-               {  console.log("INSIDE ED25519N")
-                   _derive = _DeriveBasicEd25519N} 
-        else if (code == derivation_code.oneCharCode.Ed25519)
-                {
-                    console.log("INSIDE ED25519")
-                    _derive = _DeriveBasicEd25519 }
-        else if (code == derivation_code.oneCharCode.Blake3_256)
-               {
-                console.log("INSIDE Blake3_256")
-                _derive = _DeriveDigBlake3_256
-               }
-        else if (code == derivation_code.twoCharCode.Ed25519)
-                _derive = _DeriveSigEd25519
-        else
-            throw `Unsupported code = ${code} for prefixer.`
+               
+                console.log("INSIDE CATCH ERROR")
+                    if (code == derivation_code.oneCharCode.Ed25519N)
+                       {  console.log("INSIDE ED25519N")
+                           _derive = _DeriveBasicEd25519N} 
+                else if (code == derivation_code.oneCharCode.Ed25519)
+                        {
+                            console.log("INSIDE ED25519")
+                            _derive = _DeriveBasicEd25519 }
+                else if (code == derivation_code.oneCharCode.Blake3_256)
+                       {
+                        console.log("INSIDE Blake3_256")
+                        _derive = _DeriveDigBlake3_256
+                       }
+                else if (code == derivation_code.twoCharCode.Ed25519)
+                        _derive = _DeriveSigEd25519
+                else
+                    throw `Unsupported code = ${code} for prefixer.`
 
-console.log("KED is ----------------->",ked)
-let  verfer = _derive(ked,seed,secret) // else obtain AID using ked
-console.log('DERIVED RAW AND CODE iS : ================>',verfer)
-super(verfer.raw, null,null, verfer.code,0)
-         
-            if (code == derivation_code.oneCharCode.Ed25519N){
-                console.log("INSIDE ED25519N")
-                this._verify = this._VerifyBasicEd25519
+                    console.log("KED is ----------------->",ked)
+                let  verfer = _derive(ked,seed,secret) // else obtain AID using ked
+                console.log('DERIVED RAW AND CODE iS : ================>',verfer)
+                super(verfer.raw, null,null, verfer.code,0)
+        
+        }
+       
+
+            console.log("Code is --------------->",this._code)
+            if (this._code == derivation_code.oneCharCode.Ed25519N){
+                console.log("INSIDE ED25519N---------->")
+                this._verify = this._VerifyBasicEd25519N
             }
             
-        else if (code == derivation_code.oneCharCode.Ed25519){
+        else if (this._code == derivation_code.oneCharCode.Ed25519){
             console.log("INSIDE Ed25519")
             this._verify = this._VerifyBasicEd25519
         }
             
-        else if (code == derivation_code.oneCharCode.Blake3_256){
+        else if (this._code == derivation_code.oneCharCode.Blake3_256){
             console.log("INSIDE Blake3_256")
             this._verify = this._VerifyDigBlake3_256
         }
             
-        else if (code== derivation_code.twoCharCode.Ed25519){
+        else if (this._code== derivation_code.twoCharCode.Ed25519){
             console.log("INSIDE twoCharCode.Ed25519")
             this._verify = this._VerifySigEd25519
         }

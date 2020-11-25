@@ -15,6 +15,7 @@ class Sigver extends Crymat {
 
   constructor(raw=null, code=derivation_code.twoCharCode.Ed25519, verfer=null,index = 0) {
 // Assign verfer to .verfer attribute
+console.log("value of Raw is inside Sigver is =======================>",raw.length,code,verfer)
         super(raw ,null,null,code,index)
         this._verfer = verfer
     }
@@ -27,8 +28,8 @@ class Sigver extends Crymat {
         return this._verfer
     }
 
-    setVerfer(verfer){
-        this._verfer = verfer
+    setVerfer(verfer_){
+        this._verfer = verfer_
     }
 }
 

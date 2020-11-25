@@ -31,9 +31,10 @@ let MINSNIFFSIZE = 12 + VERFULLSIZE
  * @description  It will return version string 
  */
 function versify(version=null, kind=Serials.json, size) {
-let sz =size 
+console.log("Inside Versify Method -------------------->")
+console.log("value are version,kind,size---------------->",version ,'\n',kind,'\n',size)
   if (!(Object.values(Serials).indexOf(kind) > -1))
-   {return "Invalid serialization kind =", kind.toString(16)} 
+   {throw "Invalid serialization kind =", kind.toString(16)} 
 
  console.log("We are here ")   
   if (!version)
@@ -43,8 +44,8 @@ let sz =size
   let hex1 = version['major'].toString(16)
   let hex2 = version['minor'].toString(16)
   let kind_hex = kind.toString(16)
-  let hex3 = util.pad('66'.toString(16), VERRAWSIZE)
-  console.log("kind -------->",hex3)
+  let hex3 = util.pad(size.toString(16), VERRAWSIZE)
+  console.log("kind -------->",kind_hex)
   
   console.log('version[0]----------->',version['major'])
   console.log('version[1]---------->',version['minor'])

@@ -13,6 +13,7 @@ class Diger extends Crymat {
 
     //This constructor will assign digest verification function to ._verify
     constructor(raw=null, ser=null, code=derivation_code.oneCharCode.Blake3_256){
+        console.log("INSIDE DIGER CLASS==================>")
         try{
             super(raw , null , null, code,0)
         }catch(error){
@@ -30,7 +31,7 @@ class Diger extends Crymat {
 
         }
 
-        console.log("try statement successfully executed:",(this.raw).length)
+        console.log("try statement successfully executed:",(this.raw()).length)
         if(code ==derivation_code.oneCharCode.Blake3_256){
             console.log("this._verify -------------->",this._code )
 

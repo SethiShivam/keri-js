@@ -34,7 +34,7 @@ class Crymat {
             and assign .raw
         Else when qb64 or qb2 provided extract and assign .raw and .code
         */
-       console.log("RAW AND CODE ARE :",raw,qb64,qb2)
+       console.log("RAW AND CODE ARE :",raw,qb64,qb2,index)
         console.log("raw length is ----->", qb64)
         console.log("Code ----->", code)
         ///typeof(this.raw)== typeof(Buffer.from('', 'binary') ||typeof(this.raw)== typeof(Buffer.from('', 'binary'))))
@@ -59,7 +59,7 @@ class Crymat {
                 throw `Invalid index=${index} for code=${code}.`
             }
             //   console.log('codeAndLength.cryAllRawSizes[this.code]-------->',codeAndLength.cryAllRawSizes[this.code])
-                console.log("RAW VALUE before slicing is -------->",Buffer.byteLength(raw))
+            console.log("RAW VALUE before slicing is -------->",Buffer.byteLength(raw))
             raw = raw.slice(0, codeAndLength.cryAllRawSizes[code])
             console.log("raw value after slicing is --->", raw.length)
             if (raw.length != codeAndLength.cryAllRawSizes[code]) {
@@ -75,6 +75,7 @@ class Crymat {
 
 
         else if (qb64 != null) {
+            console.log("Inside qb64 ---------------------->")
             qb64 = qb64.toString('utf-8')
             console.log("qb64---------------->", qb64.length)
             this._exfil(qb64)
@@ -167,7 +168,7 @@ class Crymat {
         this._raw = Buffer.from(raw, 'binary')
         this._index = parseInt(index)
         this._qb64 = qb64
-        console.log("CODE,INDEX,RAW are :",this._code,this._index,this._raw)
+        console.log("CODE,INDEX,RAW are :",this._code,this._index,(this._raw).toString())
 
 
     }

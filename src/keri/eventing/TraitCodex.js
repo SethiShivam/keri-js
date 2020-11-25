@@ -1,7 +1,9 @@
 
 const { Serialage, Serials, versify, Ilks,Versionage } = require('../core/core')
+const _ = require('lodash')
 const { Prefixer } = require('../core/prefixer')
 const { Serder } = require('../core/serder')
+const derivationCodeLength = require('../core/derivationCode&Length')
 const ICP_LABELS = ["vs", "pre", "sn", "ilk", "sith", "keys", "nxt",
     "toad", "wits", "cnfg"]
 const ROT_LABELS = ["vs", "pre", "sn", "ilk", "dig", "sith", "keys", "nxt",
@@ -44,11 +46,12 @@ class TraitCodex {
         let sn = 0
         let ilk = Ilks.icp
         let prefixer = null
-
+          console.log("type fo sithis ",typeof(7))  
         if (sith == null) {
-            Math.max(1, Math.ceil(keys.length / 2))
+            console.log("INside null -------->")
+            sith = Math.max(1, Math.ceil(keys.length / 2))
         }
-        if (sith instanceof int) {
+        if (typeof(sith) == 'number') {
             if (sith < 1 || sith > keys.length)
                 throw `Invalid sith = ${sith} for keys = ${keys}`
         }
@@ -63,13 +66,15 @@ class TraitCodex {
             `Invalid wits = ${wits}, has duplicates.`
 
         if (toad == null) {
-            if (!wits) {
+            console.log("toad  = null",wits.length)
+            if (wits.length == 0) {
                 toad = 0
             } else
                 toad = Math.max(1, Math.ceil(wits.length / 2))
         }
 
-        if (wits) {
+        if (wits.length != 0) {
+            console.log("Inside wits ------->",wits)
             if (toad < 1 || toad > wits.length)
                 throw `Invalid toad = ${toad} for wits = ${wits}`
         } else {
@@ -93,11 +98,12 @@ class TraitCodex {
             wits: wits,                            // # list of qb64 may be empty
             cnfg: cnfg,                           // # list of config ordered mappings may be empty
         }
-
-        if (code != null && keys.length == 1) {
-            prefixer = new Prefixer(null, null, null, null, null, keys[0])
+        console.log(" =========================  Keys are ------------------>",code,keys.length )
+        if (code == null && keys.length == 1) {
+            prefixer = new Prefixer(null, derivationCodeLength.oneCharCode.Ed25519N, null, null, null, keys[0])
         }
         else {
+            console.log("========================CODE BEFORE PREFIX IS =======================",code)
             prefixer = new Prefixer(null, code, ked)
         }
 
@@ -125,8 +131,8 @@ class TraitCodex {
     ) {
 
 
-
-
+        let cutset,addset = null
+        console.log("Value of sith is ------>",sith)
         let vs = versify(version, kind, 0)
         //let sn = 0
         let ilk = Ilks.rot
@@ -136,9 +142,10 @@ class TraitCodex {
             `Invalid sn =  ${sn} for rot.`
         }
         if (sith == null) {
-            Math.max(1, Math.ceil(keys.length / 2))
+            console.log("INSIDE Sith == null")
+            sith =   Math.max(1, Math.ceil(keys.length / 2))
         }
-        if (sith instanceof int) {
+        if (typeof(sith) == 'number') {
             if (sith < 1 || sith > keys.length)
                 throw `Invalid sith = ${sith} for keys = ${keys}`
         }
@@ -148,27 +155,30 @@ class TraitCodex {
 
         if (!wits) wits = []
 
-        let witset = isSorted(wits)
+        let witset = wits
         if ((witset).length != wits.length)
             `Invalid wits = ${wits}, has duplicates.`
 
 
         if (!cuts) cuts = []
-
-        cutset = isSorted(cuts)
-
-        if(witset != cutset)
+        
+        cutset = cuts
+        console.log("cutset --------------->",witset,cutset)
+        if(!(_.isEqual(witset,cutset)))
         throw `Invalid cuts = ${cuts}, not all members in wits.`
 
         if (!adds) adds = []
-        let addset = isSorted(addset)
 
-        if(addset.lngth != adds.length )
+         addset = adds
+        console.log("value of adds is ------->",addset)
+    
+        if(addset.length != adds.length )
         throw  `Invalid adds =  ${adds}, has duplicates.`
 
-        if((cutset) && (addset)) throw `Intersecting cuts = ${cuts} and  adds = ${adds}.`
+        console.log("Value of cutset and addset are : =======>",cutset,addset)
+        if((cutset.length > 0) && (addset.length > 0)) throw `Intersecting cuts = ${cuts} and  adds = ${adds}.`
         
-        if((witset) && (addset)) throw `Intersecting wits = ${wits} and  adds = ${adds}.`
+        if((witset.length > 0) && (addset.length > 0)) throw `Intersecting wits = ${wits} and  adds = ${adds}.`
 
         let newitset = witset.filter(x => !cutset.includes(x));
 
@@ -177,10 +187,11 @@ class TraitCodex {
 
 
         if(!toad){
-            if(!newitset){toad = 0}
+            console.log("TOAD ABSENT ",newitset)
+            if(newitset.length ==0){toad = 0}
             else {toad = Math.max(1, Math.ceil(newitset.length / 2))}
         }
-        if(newitset){
+        if(newitset.length > 0){
             if(toad <1 || toad > newitset.length)
             throw `Invalid toad = ${toad} for resultant wits = ${newitset}`
         }else {
@@ -261,7 +272,7 @@ class TraitCodex {
        receipt(pre,
         sn,
         dig,
-        version=Version,
+        version=Versionage,
         kind=Serials.json
        ){
 
@@ -301,11 +312,11 @@ class TraitCodex {
         sn,
         dig,
         seal,
-        version=Version,
+        version=Versionage,
         kind=Serials.json
        ){
 
-        let vs = versify(version, kind, 0)
+        let vs_ = versify(version, kind, 0)
         //let sn = 0
         let ilk = Ilks.vrc
 
@@ -314,12 +325,12 @@ class TraitCodex {
         }
 
         let ked = {
-            vs=vs,          // # version string
-            pre=pre,        //# qb64 prefix
-            ilk=ilk,            //#  Ilks.vrc
-            sn=sn.toString(16),   // # hex string no leading zeros lowercase
-            dig=dig,        // # qb64 digest of receipted event
-            seal=seal._asdict()         //  # event seal: pre, dig
+            vs :vs_,          // # version string
+            pre:pre,        //# qb64 prefix
+            ilk:ilk,            //#  Ilks.vrc
+            sn:sn.toString(16),   // # hex string no leading zeros lowercase
+            dig:dig,        // # qb64 digest of receipted event
+            seal:seal         //  # event seal: pre, dig
         }
         return new Serder(null, ked)
 

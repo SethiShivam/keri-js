@@ -40,23 +40,23 @@ function test_opendatabaser() {
    //
 
 
-   // var dbi = dber_val.env.openDbi({
-   //    name: "mydb1",
-   //    create : true
-   // });
+   var dbi = dber_val.env.openDbi({
+      name: "mydb1",
+      create : true
+   });
 
 
 
 
 
-   // assert.equal(dber_val.getVal(dbi, key), null)
-   // assert.equal(dber_val.delVal(dbi, key), false)
-   //  assert.deepStrictEqual(dber_val.putVal(dbi, key, val), true)
-   // assert.equal(dber_val.putVal(dbi, key, val), false)
-   // assert.deepStrictEqual(dber_val.setVal(dbi, key, val), true)
-   // assert.equal(dber_val.getVal(dbi, key), val.toString())
-   // assert.equal(dber_val.delVal(dbi, key), true)
-   // assert.equal(dber_val.getVal(dbi, key), null)
+   assert.equal(dber_val.getVal(dbi, key), null)
+   assert.equal(dber_val.delVal(dbi, key), false)
+    assert.deepStrictEqual(dber_val.putVal(dbi, key, val), true)
+   assert.equal(dber_val.putVal(dbi, key, val), false)
+   assert.deepStrictEqual(dber_val.setVal(dbi, key, val), true)
+   assert.equal(dber_val.getVal(dbi, key), val.toString())
+   assert.equal(dber_val.delVal(dbi, key), true)
+   assert.equal(dber_val.getVal(dbi, key), null)
 
 
    // assert.deepStrictEqual(dber_val.getVals(dbi, key) , []) 
@@ -611,4 +611,4 @@ function test_fetchkeldel(){
    for(let val in vals2)
    assert.deepStrictEqual(_lgr.addKe(key, val) ,true) 
 }
-test_logger()
+test_opendatabaser()

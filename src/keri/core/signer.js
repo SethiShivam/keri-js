@@ -1,9 +1,10 @@
 const { Crymat } = require("./cryMat");
-const derivation_code = require('./derivationCode&Length')
-const libsodium = require('libsodium-wrappers-sumo');
+const derivationCodes = require('./derivationCode&Length')
+const libsodium =  require('libsodium-wrappers-sumo')
 const { Verfer } = require("./verfer");
 const { decodeAllSync } = require("cbor");
 const {Sigver} = require("./sigver");
+const {Siger} = require("./siger");
 const {range}  = require('./utls')
 /**
  * @description Signer is CryMat subclass with method to create signature of serialization
@@ -13,37 +14,52 @@ const {range}  = require('./utls')
  *  If not provided .verfer is generated from private key seed using .code
     as cipher suite for creating key-pair.
  */
-class Signer extends Crymat {
 
-    constructor(raw = Buffer.from('', 'utf-8'), code = derivation_code.oneCharCode.Ed25519_Seed, transferable = true) {
-        let verfer,seedKeypair,verkey,sigkey = null
+
+class Signer extends Crymat {
+     
+    constructor(raw = Buffer.from('', 'binary'), code = derivationCodes.oneCharCode.Ed25519_Seed, transferable = true,lib =null) {
+                
+        let _verfer,seedKeypair,verkey,sigkey = null
+       
         try {
+            console.log("Raw inside Signer is --------->",code)
             super(raw,null,null,code)
         } catch (error) {
-            if (code = derivation_code.oneCharCode.Ed25519_Seed) {
-                raw = libsodium.randombytes_buf(libsodium.crypto_sign_SEEDBYTES)
+            console.log("ERROR IS =============>",error)
+            if (code = derivationCodes.oneCharCode.Ed25519_Seed) {
+                raw = lib.randombytes_buf(lib.crypto_sign_SEEDBYTES)
+                raw = Buffer.from(raw,'binary')
                 super(raw,null,null,code)
             } else
                 throw `Unsupported signer code = ${code}.`
 
         }
-        if(code == derivation_code.oneCharCode.Ed25519_Seed){
+        if(code == derivationCodes.oneCharCode.Ed25519_Seed){
             this._sign = this._ed25519
-             seedKeypair = libsodium.crypto_sign_seed_keypair(raw)
+             seedKeypair = lib.crypto_sign_seed_keypair(raw)
              verkey = seedKeypair.publicKey
              sigkey = seedKeypair.privateKey
              if(transferable){
-                verfer = new Verfer(raw,null,null,derivation_code.oneCharCode.Ed25519)
+                _verfer = new Verfer(raw,null,null,derivationCodes.oneCharCode.Ed25519)
              }else{
-                verfer = new Verfer(raw,null,null,derivation_code.oneCharCode.Ed25519N)
+                _verfer = new Verfer(raw,null,null,derivationCodes.oneCharCode.Ed25519N)
              }
              
         }else {
             throw `Unsupported signer code = ${code}.`
         }
-            this._verfer = verfer
+        console.log("VERFER **************************88RAW IS ------------------->",(_verfer.raw()).toString())
+            this._verfer = _verfer
     }
 
+
+    // static  init(){ 
+    //          return (async ()=>{
+    //              await  this.init_lib()
+    //          })
+
+    // }
 
 /**
  * @description Property verfer:
@@ -51,8 +67,9 @@ class Signer extends Crymat {
         Assumes ._verfer is correctly assigned
  */
     verfer(){
-         return this.verfer
+         return this._verfer
     }
+
 
 
 
@@ -71,8 +88,10 @@ class Signer extends Crymat {
  * @param {*} index 
  */
     sign(ser, index=null){
+        let raw = this._verfer.raw()
+        console.log("both raw are $$$$$$$$$$$$$$$$$$$$$$$$$$$$$>", '\n',index,raw.length)
 
-        return this._sign(ser,this.raw,this.verfer,index)
+        return this._sign(ser,this.raw(),raw,index)
     }
 
 
@@ -87,13 +106,19 @@ class Signer extends Crymat {
   async   _ed25519(ser, seed, verfer, index){
 
     await libsodium.ready
-
-      let  sig = libsodium.crypto_sign_detached(ser, seed + verfer.raw())
-      if(!index){
-          return  new Sigver(raw=sig, code=CryTwoDex.Ed25519, verfer=verfer)
+    console.log("Value or Raw is ---------------->",seed.length,verfer.length)
+      let  sig = libsodium.crypto_sign_detached(ser,Buffer.concat([seed,verfer]))
+      sig = Buffer.from(sig,'binary')
+      console.log("*****************************Buffer of Sig is***************************>",sig.length)
+      if(index = null){
+          console.log("Index not present ======================",)
+          return  new Sigver(sig, derivationCodes.twoCharCode.Ed25519,verfer)
       }
       else {
-        return new Sigver(raw=sig,code=SigTwoDex.Ed25519,verfer=verfer,index=index)
+        console.log("Index  present ======================")
+
+        let  args = [sig,null,null,derivationCodes.SigTwoCodex.Ed25519]
+        return new Siger(verfer,...args)
       }
     }
 
@@ -150,5 +175,10 @@ class Signer extends Crymat {
         return signrs
     }
 
+    async function init_libsodium(){
 
-module.exports = { Signer ,generateSigners,generateSecrets}
+        return await  new Signer.init()
+
+    }
+
+module.exports = { Signer ,generateSigners,generateSecrets,init_libsodium}

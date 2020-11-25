@@ -31,7 +31,8 @@ class Verfer extends Crymat {
      */
     verify(sig, ser) {
 
-        return this._verify(sig = sig, ser = ser, key = this._raw)
+        console.log("LENGTHS are ==============>",sig.length,ser.length,(this._raw).length)
+        return this._verify(sig,ser,this._raw)
     }
 
     /**

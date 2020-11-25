@@ -1,5 +1,4 @@
 
-const { Logger } = require('../db/database')
 const { Serials, Versionage, IcpLabels, Ilks } = require('../core/core')
 const { snkey, Logger,dgkey } = require('../db/database')
 const { LastEstLoc } = require('../../keri/eventing/util')
@@ -56,7 +55,7 @@ const DRT_LABELS = ["vs", "pre", "sn", "ilk", "dig", "sith", "keys", "nxt",
 
 
 class Kever {
-    EstOnly = False
+    
 
 
     constructor(serder, sigers, estOnly = null, logger = null) {
@@ -68,11 +67,11 @@ class Kever {
         this.logger = logger
         this.version = serder.version       // # version dispatch ?
         this.verfers = serder.verfers           //# converts keys to verifiers
-
+        this.EstOnly = false
 
         for (let siger in sigers) {
 
-            if (siger.index >= len(self.verfers)) {
+            if (siger.index >= (self.verfers).length) {
 
                 throw `Index = ${siger.index} to large for keys.`
             }
